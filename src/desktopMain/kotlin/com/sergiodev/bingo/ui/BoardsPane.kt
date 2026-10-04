@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -62,12 +65,12 @@ fun BoardsPane(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Cartones (${state.boards.size})", style = MaterialTheme.typography.titleLarge)
-            Button(onClick = onAddBoard) { Text("Agregar cartón") }
+            Text(stringResource(Res.string.boards_title, state.boards.size), style = MaterialTheme.typography.titleLarge)
+            Button(onClick = onAddBoard) { Text(stringResource(Res.string.board_list_add_label)) }
         }
         if (state.boards.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Todavía no hay cartones. Agrega el primero.")
+                Text(stringResource(Res.string.board_list_empty_message))
             }
         } else {
             LazyVerticalGrid(
@@ -122,11 +125,11 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                     fontSize = 14.sp,
                 )
                 card?.missing?.let { NearWinPill(it) }
-                TextButton(onClick = onDelete) { Text("Eliminar", fontSize = 12.sp) }
+                TextButton(onClick = onDelete) { Text(stringResource(Res.string.board_list_delete_button), fontSize = 12.sp) }
             }
             if (card != null && winner) {
                 Text(
-                    "¡BINGO! " + card.winningPatternIds.joinToString(", ") { patternLabel(it) },
+                    stringResource(Res.string.board_card_bingo, card.winningPatternIds.map { patternLabel(it) }.joinToString(", ")),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 13.sp,
@@ -166,7 +169,7 @@ private fun NearWinPill(missing: Int) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            "Faltan $missing",
+            stringResource(Res.string.board_card_missing, missing),
             color = MaterialTheme.colorScheme.onTertiaryContainer,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,

@@ -8,6 +8,8 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.sergiodev.bingo.di.AppContainer
 import com.sergiodev.bingo.ui.AppWindow
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
 import java.awt.Dimension
 
 fun main() = application {
@@ -18,7 +20,7 @@ fun main() = application {
             container.close()
             exitApplication()
         },
-        title = "BingoFF",
+        title = stringResource(Res.string.app_name),
         state = state,
     ) {
         window.minimumSize = Dimension(1200, 700)

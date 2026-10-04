@@ -19,6 +19,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
+            implementation(compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
         }
@@ -44,6 +45,12 @@ room {
 
 dependencies {
     add("kspDesktop", libs.androidx.room.compiler)
+}
+
+compose.resources {
+    packageOfResClass = "com.sergiodev.bingo.resources"
+    publicResClass = false
+    generateResClass = always
 }
 
 compose.desktop {

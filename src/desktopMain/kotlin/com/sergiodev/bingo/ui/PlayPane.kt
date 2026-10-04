@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -72,15 +75,15 @@ fun PlayPane(play: GamePlayHolder, prediction: PlayPaneState, session: GameSessi
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Juego en curso", style = MaterialTheme.typography.titleLarge)
-        Text("Modo: ${state.mode.label()} · Llamadas: ${state.calledCount}")
+        Text(stringResource(Res.string.game_play_title), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(Res.string.game_play_mode_status, state.mode.uiText().resolve(), state.calledCount))
         WinnerAnnouncements(state)
         NumberEntry(state, play, focus)
         HorizontalDivider()
         CalledGrid(state, onToggle = play::onLetterDismissToggled)
         PossibleWinners(possible, onToggle = play::onLetterDismissToggled)
         Button(onClick = { confirmingEnd = true }, modifier = Modifier.fillMaxWidth()) {
-            Text("Terminar juego")
+            Text(stringResource(Res.string.game_play_end_game_button))
         }
     }
     if (confirmingEnd) {
@@ -103,7 +106,7 @@ private fun WinnerAnnouncements(state: GamePlayUiState) {
             modifier = Modifier.fillMaxWidth().border(2.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
         ) {
             Text(
-                "¡Bingo! #${win.sequentialNumber} ${win.identifier} · ${patternLabel(win.patternId)}",
+                stringResource(Res.string.game_play_bingo_announcement, win.sequentialNumber, win.identifier, patternLabel(win.patternId)),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(8.dp),
             )
@@ -116,10 +119,10 @@ private fun NumberEntry(state: GamePlayUiState, play: GamePlayHolder, focus: Foc
     OutlinedTextField(
         value = state.numberInput,
         onValueChange = { play.onNumberInputChanged(sanitizeNumberInput(it)) },
-        label = { Text("Número") },
+        label = { Text(stringResource(Res.string.game_play_number_label)) },
         singleLine = true,
         isError = state.inputError != null,
-        supportingText = { state.inputError?.let { Text(it.message()) } },
+        supportingText = { state.inputError?.let { Text(it.uiText().resolve()) } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         keyboardActions = KeyboardActions(onDone = { play.onSubmitCall() }),
         modifier = Modifier
@@ -140,7 +143,7 @@ private fun NumberEntry(state: GamePlayUiState, play: GamePlayHolder, focus: Foc
             )
         }
     }
-    Button(onClick = play::onSubmitCall, modifier = Modifier.fillMaxWidth()) { Text("Cantar número") }
+    Button(onClick = play::onSubmitCall, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.game_play_submit_call_button)) }
 }
 
 /** Five bordered rows B-I-N-G-O; COLUMNA rows get a toggle button and right-click to dismiss. */
@@ -162,13 +165,13 @@ private fun CalledGrid(state: GamePlayUiState, onToggle: (BingoLetter) -> Unit) 
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "${letter.name}: ${calls.joinToString(", ")}",
+                    stringResource(Res.string.game_play_letter_calls, letter.name, calls.joinToString(", ")),
                     modifier = Modifier.weight(1f).padding(vertical = 8.dp),
                     textDecoration = if (dismissed) TextDecoration.LineThrough else null,
                     color = if (dismissed) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 )
                 if (dismissible) {
-                    TextButton(onClick = { onToggle(letter) }) { Text(if (dismissed) "Reabrir" else "Cerrar") }
+                    TextButton(onClick = { onToggle(letter) }) { Text(stringResource(if (dismissed) Res.string.game_play_column_reopen else Res.string.game_play_column_close)) }
                 }
             }
             if (index < BingoLetter.entries.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -183,9 +186,9 @@ private fun CalledGrid(state: GamePlayUiState, onToggle: (BingoLetter) -> Unit) 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PossibleWinners(candidates: List<PredictionCandidate>, onToggle: (BingoLetter) -> Unit) {
-    Text("Posibles ganadores", style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(Res.string.game_play_possible_winners_title), style = MaterialTheme.typography.titleMedium)
     if (candidates.isEmpty()) {
-        Text("Ningún cartón cerca de ganar.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(Res.string.game_play_possible_winners_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
     Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outline)) {
@@ -206,16 +209,10 @@ private fun PossibleWinners(candidates: List<PredictionCandidate>, onToggle: (Bi
                     modifier = Modifier.weight(1f).padding(vertical = 8.dp),
                 )
                 if (letter != null) {
-                    TextButton(onClick = { onToggle(letter) }) { Text("Cerrar") }
+                    TextButton(onClick = { onToggle(letter) }) { Text(stringResource(Res.string.game_play_column_close)) }
                 }
             }
             if (index < candidates.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
         }
     }
-}
-
-private fun GamePlayInputError.message(): String = when (this) {
-    GamePlayInputError.InvalidNumber -> "Número inválido (1-75)"
-    GamePlayInputError.LetterMismatch -> "La letra seleccionada no corresponde a ese número"
-    is GamePlayInputError.DuplicateCall -> "Número ya cantado: $number"
 }

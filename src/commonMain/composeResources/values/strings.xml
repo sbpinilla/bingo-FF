@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bingo FF</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_accept">Aceptar</string>
+
+    <!-- Menu -->
+    <string name="menu_label">Menú</string>
+    <string name="menu_export_file">Exportar cartones a archivo</string>
+    <string name="menu_export_clipboard">Copiar cartones como JSON</string>
+    <string name="menu_import_file">Importar desde archivo</string>
+    <string name="menu_import_paste">Importar pegando JSON</string>
+
+    <!-- Theme -->
+    <string name="theme_title">Tema</string>
+    <string name="theme_light_option">Claro</string>
+    <string name="theme_dark_option">Oscuro</string>
+    <string name="theme_system_option">Sistema</string>
+
+    <!-- Boards pane -->
+    <string name="boards_title">Cartones (%1$d)</string>
+    <string name="board_list_add_label">Agregar cartón</string>
+    <string name="board_list_empty_message">Todavía no hay cartones. Agrega el primero.</string>
+    <string name="board_list_delete_button">Eliminar</string>
+    <string name="board_list_delete_dialog_title">Eliminar cartón</string>
+    <string name="board_list_delete_dialog_message">¿Eliminar el cartón #%1$d (%2$s)? Esta acción no se puede deshacer.</string>
+    <string name="board_card_bingo">¡BINGO! %1$s</string>
+    <string name="board_card_missing">Faltan %1$d</string>
+
+    <!-- Create board -->
+    <string name="create_board_title">Agregar cartón</string>
+    <string name="create_board_identifier_label">Identificador</string>
+    <string name="create_board_save_button">Guardar</string>
+    <string name="create_board_error_blank_identifier">El identificador no puede estar vacío</string>
+    <string name="create_board_error_duplicate_identifier">Ya existe un cartón con ese identificador</string>
+
+    <!-- Game setup -->
+    <string name="game_setup_title">Nuevo juego</string>
+    <string name="game_setup_no_boards_message">Registra al menos un cartón para poder jugar</string>
+    <string name="game_setup_select_mode_message">Selecciona el modo de juego</string>
+    <string name="game_setup_start_button">Jugar</string>
+    <string name="game_setup_mode_columna">Columna</string>
+    <string name="game_setup_mode_o">O</string>
+    <string name="game_setup_mode_l">L</string>
+    <string name="game_setup_mode_i">I</string>
+    <string name="game_setup_mode_carton_completo">Completo</string>
+
+    <!-- Game play -->
+    <string name="game_play_title">Juego en curso</string>
+    <string name="game_play_mode_status">Modo: %1$s · Llamadas: %2$d</string>
+    <string name="game_play_bingo_announcement">¡Bingo! #%1$d %2$s · %3$s</string>
+    <string name="game_play_number_label">Número</string>
+    <string name="game_play_submit_call_button">Cantar número</string>
+    <string name="game_play_letter_calls">%1$s: %2$s</string>
+    <string name="game_play_possible_winners_title">Posibles ganadores</string>
+    <string name="game_play_possible_winners_empty">Ningún cartón cerca de ganar.</string>
+    <string name="win_prediction_row">#%1$d %2$s · faltan %3$d</string>
+    <string name="win_prediction_row_letter">#%1$d %2$s · %3$s · faltan %4$d</string>
+    <string name="game_play_end_game_button">Terminar juego</string>
+    <string name="game_play_end_game_dialog_title">¿Terminar juego?</string>
+    <string name="game_play_end_game_dialog_message">Se perderán los números cantados y los bingos anunciados de esta partida.</string>
+    <string name="game_play_end_game_confirm_button">Terminar</string>
+    <string name="game_play_column_close">Cerrar</string>
+    <string name="game_play_column_reopen">Reabrir</string>
+    <string name="game_play_error_invalid_number">Número inválido (1-75)</string>
+    <string name="game_play_error_letter_mismatch">La letra seleccionada no corresponde a ese número</string>
+    <string name="game_play_error_duplicate_call">Número ya cantado: %1$d</string>
+
+    <!-- Win patterns -->
+    <string name="pattern_column">Columna %1$s</string>
+    <string name="pattern_o">O</string>
+    <string name="pattern_l">L</string>
+    <string name="pattern_i">I</string>
+    <string name="pattern_full_card">Cartón completo</string>
+    <string name="pattern_other">%1$s</string>
+
+    <!-- Import and export -->
+    <string name="import_boards_title">Importar cartones</string>
+    <string name="import_boards_json_label">JSON de cartones</string>
+    <string name="import_boards_submit_button">Importar</string>
+    <string name="import_boards_error_blank_input">No hay nada que importar: el contenido está vacío</string>
+    <string name="import_boards_error_invalid_json">El contenido no es un JSON de cartones válido; no se importó ningún cartón</string>
+    <string name="import_boards_error_unreadable_file">No se pudo leer el archivo seleccionado</string>
+    <string name="import_result_title">Importación terminada</string>
+    <string name="import_error_title">No se pudo importar</string>
+    <string name="import_result_message">Importados: %1$d, omitidos: %2$d</string>
+    <string name="export_title">Exportar cartones</string>
+    <string name="export_saved_message">Cartones exportados a %1$s</string>
+    <string name="export_copied_message">Cartones copiados al portapapeles como JSON</string>
+    <string name="export_failed_message">No se pudo escribir el archivo</string>
+</resources>

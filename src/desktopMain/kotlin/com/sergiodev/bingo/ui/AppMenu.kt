@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +58,7 @@ fun AppMenu(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(onClick = { expanded = true }) { Text("Menú") }
+        TextButton(onClick = { expanded = true }) { Text(stringResource(Res.string.menu_label)) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             item("Exportar cartones a archivo", onExportToFile)()
             item("Copiar cartones como JSON", onCopyToClipboard)()
@@ -71,7 +74,7 @@ fun AppMenu(
 @Composable
 private fun ThemeOptions(selected: ThemeMode, onSelect: (ThemeMode) -> Unit) {
     Column(Modifier.selectableGroup()) {
-        Text("Tema", modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(Res.string.theme_title), modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), style = MaterialTheme.typography.labelLarge)
         ThemeMode.entries.forEach { mode ->
             Row(
                 modifier = Modifier
@@ -82,7 +85,7 @@ private fun ThemeOptions(selected: ThemeMode, onSelect: (ThemeMode) -> Unit) {
             ) {
                 RadioButton(selected = mode == selected, onClick = null)
                 Spacer(Modifier.width(8.dp))
-                Text(mode.label())
+                Text(mode.uiText().resolve())
             }
         }
     }

@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +51,7 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onClose,
-        title = { Text("Agregar cartón") },
+        title = { Text(stringResource(Res.string.create_board_title)) },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
@@ -57,10 +60,10 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
                 OutlinedTextField(
                     value = state.identifier,
                     onValueChange = holder::onIdentifierChange,
-                    label = { Text("Identificador") },
+                    label = { Text(stringResource(Res.string.create_board_identifier_label)) },
                     singleLine = true,
                     isError = state.identifierError != null,
-                    supportingText = { state.identifierError?.let { Text(it.message()) } },
+                    supportingText = { state.identifierError?.let { Text(it.uiText().resolve()) } },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 BingoLetter.entries.forEach { letter ->
@@ -91,12 +94,7 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = holder::onSubmit) { Text("Guardar") } },
-        dismissButton = { TextButton(onClick = onClose) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = holder::onSubmit) { Text(stringResource(Res.string.create_board_save_button)) } },
+        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(Res.string.common_cancel)) } },
     )
-}
-
-private fun CreateBoardErrorReason.message(): String = when (this) {
-    CreateBoardErrorReason.BlankIdentifier -> "El identificador no puede estar vacío"
-    CreateBoardErrorReason.DuplicateIdentifier -> "Ya existe un cartón con ese identificador"
 }

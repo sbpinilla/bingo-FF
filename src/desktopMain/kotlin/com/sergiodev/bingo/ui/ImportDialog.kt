@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,21 +29,21 @@ fun ImportDialog(
 ) {
     AlertDialog(
         onDismissRequest = onClose,
-        title = { Text("Importar cartones") },
+        title = { Text(stringResource(Res.string.import_boards_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedTextField(
                     value = state.jsonText,
                     onValueChange = onTextChange,
-                    label = { Text("JSON de cartones") },
+                    label = { Text(stringResource(Res.string.import_boards_json_label)) },
                     isError = state.importError != null,
-                    supportingText = { state.importError?.let { Text(it.message()) } },
+                    supportingText = { state.importError?.let { Text(it.uiText().resolve()) } },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 400.dp),
                 )
             }
         },
-        confirmButton = { TextButton(onClick = onSubmit) { Text("Importar") } },
-        dismissButton = { TextButton(onClick = onClose) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = onSubmit) { Text(stringResource(Res.string.import_boards_submit_button)) } },
+        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(Res.string.common_cancel)) } },
     )
 }
 
@@ -54,14 +57,14 @@ fun ImportExportNotices(
     onExportDismissed: () -> Unit,
 ) {
     state.importSummary?.let { summary ->
-        NoticeDialog("Importación terminada", summary.message(), onSummaryDismissed)
+        NoticeDialog(stringResource(Res.string.import_result_title), summary.uiText().resolve(), onSummaryDismissed)
     }
     val error = state.importError
     if (error != null && !pasteDialogOpen) {
-        NoticeDialog("No se pudo importar", error.message(), onErrorDismissed)
+        NoticeDialog(stringResource(Res.string.import_error_title), error.uiText().resolve(), onErrorDismissed)
     }
     state.exportOutcome?.let { outcome ->
-        NoticeDialog("Exportar cartones", outcome.message(), onExportDismissed)
+        NoticeDialog(stringResource(Res.string.export_title), outcome.uiText().resolve(), onExportDismissed)
     }
 }
 
@@ -71,20 +74,6 @@ private fun NoticeDialog(title: String, message: String, onDismiss: () -> Unit) 
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(message) },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Aceptar") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.common_accept)) } },
     )
-}
-
-private fun ImportErrorReason.message(): String = when (this) {
-    ImportErrorReason.BlankInput -> "No hay nada que importar: el contenido está vacío"
-    ImportErrorReason.InvalidJson -> "El contenido no es un JSON de cartones válido; no se importó ningún cartón"
-    ImportErrorReason.UnreadableFile -> "No se pudo leer el archivo seleccionado"
-}
-
-private fun ImportResult.message(): String = "Importados: $imported, omitidos: $skipped"
-
-private fun ExportOutcome.message(): String = when (this) {
-    is ExportOutcome.Saved -> "Cartones exportados a $path"
-    ExportOutcome.Copied -> "Cartones copiados al portapapeles como JSON"
-    ExportOutcome.Failed -> "No se pudo escribir el archivo"
 }

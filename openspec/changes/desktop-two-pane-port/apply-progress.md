@@ -318,3 +318,39 @@ Test count: 213 before, 226 after (13 new: 6 + 6 + 1). `./gradlew test --rerun-t
 - Palette: only primary/secondary/tertiary are overridden (as in Android); all other roles use Material defaults. Board cells, winner highlight, near-win pill and PlayPane already use `colorScheme` tokens, so they adapt. The Success green chip (`#2E7D32` with white label) is fixed in both themes (contrast ok on light and dark surfaces).
 - The theme radio group sits in the existing overflow menu and keeps it open on selection. Labels are hard-coded Spanish pending unit 9.
 - Manual check pending: switch Claro/Oscuro/Sistema and see the window re-theme at once; relaunch keeps the choice; with Sistema, toggle the OS appearance; inspect winner card, called cells, "Faltan N" pill and green chip in both themes.
+
+## Unit 9: ui-localization (DONE, tasks 9.1-9.4, Strict TDD)
+
+- [x] 9.1 RED: `desktopTest/i18n/StringsParityTest` (6, parses both real `strings.xml` files: key parity, placeholder parity, non-blank), `LocaleSelectionTest` (2, real CMP lookup with `Locale.setDefault`), `NoHardCodedStringsTest` (2, optional guard), `desktopTest/ui/ReasonMappingTest` (7)
+- [x] 9.2 GREEN: `src/commonMain/composeResources/values/strings.xml` (es, default) and `values-en/strings.xml` (72 keys each); `ui/Strings.kt` (`UiText(res, args)`, `resolve()`, `uiText()` mappings for GamePlayInputError, CreateBoardErrorReason, ImportErrorReason, ImportResult, ExportOutcome, GameMode, ThemeMode, `patternUiText`); `compose.components.resources` in commonMain, `compose.resources { packageOfResClass = "com.sergiodev.bingo.resources" }` in `build.gradle.kts`
+- [x] 9.3 RED then GREEN: reason mapping tests; every hard-coded literal in `AppMenu`, `BoardsPane`, `CreateBoardDialog`, `DeleteConfirmDialog`, `EndGameDialog`, `ImportDialog`, `PlayPane`, `SetupPane`, `PatternLabels` and the window title in `Main.kt` replaced by `stringResource`
+- [x] 9.4 Commit `feat(i18n): add Spanish and English localization`
+
+### TDD Cycle Evidence (unit 9)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 9.1/9.2 | `i18n/StringsParityTest.kt` | Integration (real resource files) | 226/226 | Written; test source set failed to compile (Res/compose resources unresolved) | 6/6 passed | key sets, placeholder sets per key, size and `app_name` presence, extraction ordering, no blank values | None needed |
+| 9.1/9.2 | `i18n/LocaleSelectionTest.kt` | Integration (real CMP lookup) | 226/226 | Written; compile failed: Unresolved reference 'resources' / 'Res' | 2/2 passed | en-US and en-GB English; fr-FR and es-AR Spanish | None needed |
+| 9.3 | `ui/ReasonMappingTest.kt` | Unit over real resources | 226/226 | Written; compile failed: Unresolved reference 'uiText' / 'UiText' | 7/7 passed | DuplicateCall(47) en and DuplicateCall(12) es, three input errors distinct, create-board reasons en/es, import reasons and counts en/es, export outcomes (path included), patterns (column, full card, O, L, I, unknown id), modes and themes | None needed |
+| 9.3 | `i18n/NoHardCodedStringsTest.kt` | Static scan | 226/226 | Written after the replacement; the same pattern matches 35 literal lines at HEAD (`git grep`), so it would have failed before. First run on the new code failed on a false positive (`"#${board.id}"`) | 2/2 passed after template expressions are stripped | detector flags 4 literal shapes, accepts resources, symbols, template-only text and comments | Template stripping added |
+| 9.3 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, mapping logic covered by `ReasonMappingTest` | compiles | n/a | n/a |
+
+Test count: 226 before, 243 after (17 new: 6 + 2 + 7 + 2). `./gradlew test --rerun-tasks`: BUILD SUCCESSFUL, failures=0.
+
+### Work Unit Evidence (unit 9)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew desktopTest --tests '*Strings*' --tests '*Locale*' --tests '*ReasonMapping*'`: 15/15 (RED first: compile errors); full `./gradlew test --rerun-tasks` tests=243 failures=0 |
+| Runtime harness | Resource lookup exercised for real by `LocaleSelectionTest` and `ReasonMappingTest` (classpath resources, `getSystemResourceEnvironment()` from the JVM default locale). Window with `-Duser.language=en` NOT launched (no GUI driver) |
+| Rollback boundary | `src/commonMain/composeResources/`, `ui/Strings.kt`, the string edits in `ui/*` and `Main.kt`, `compose.components.resources` and `compose.resources` in `build.gradle.kts`, `desktopTest/{i18n,ui}` (revert the unit 9 commit) |
+
+### Deviations / notes (unit 9)
+
+- Resources live in `src/commonMain/composeResources` (as instructed), not `src/desktopMain/composeResources` as the alias `R` in tasks.md says. `ui/Strings.kt` holds `UiText` plus the pure reason-to-resource functions (testable without Compose).
+- Locale selection is CMP's own: `getSystemResourceEnvironment()` reads `Locale.getDefault()`; a `values-en` qualifier matches any English region and everything else falls back to the default `values` (Spanish), which is exactly the spec rule. No custom code. Verified with en-US, en-GB (English) and fr-FR, es-AR (Spanish).
+- Android keys reused where they apply (`game_play_*`, `import_boards_*`, `theme_*`, `create_board_*`, `board_list_delete_*`); where the shipped desktop copy differs, the desktop wording was kept under the Android key (e.g. `board_list_delete_dialog_message` takes id and identifier). Android-only keys (back, exit dialog, column dismiss dialog, settings screen) are not defined because no desktop screen uses them. Pattern ids O, L, I have their own keys; an unknown id renders as-is via `pattern_other`.
+- English for "Faltan N" is "N to go". Key count: 72 in each language.
+- No holder contains UI text (checked); reason types are mapped only in `ui/Strings.kt`. The window title now uses `app_name` ("Bingo FF", previously "BingoFF").
+- Manual check pending: run with `-Duser.language=en` and `-Duser.language=fr`, walk every screen and dialog; check long English strings do not clip in the 1/3 pane and the pill; confirm the packaged app also resolves resources (`packageDistributionForCurrentOS`, unit 10).

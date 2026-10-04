@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -10,9 +13,9 @@ import com.sergiodev.bingo.domain.model.BoardCard
 fun DeleteConfirmDialog(board: BoardCard, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Eliminar cartón") },
-        text = { Text("¿Eliminar el cartón #${board.id} (${board.identifier})? Esta acción no se puede deshacer.") },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Eliminar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        title = { Text(stringResource(Res.string.board_list_delete_dialog_title)) },
+        text = { Text(stringResource(Res.string.board_list_delete_dialog_message, board.id, board.identifier)) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(Res.string.board_list_delete_button)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.common_cancel)) } },
     )
 }

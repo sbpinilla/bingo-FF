@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bingo FF</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_accept">OK</string>
+
+    <!-- Menu -->
+    <string name="menu_label">Menu</string>
+    <string name="menu_export_file">Export boards to file</string>
+    <string name="menu_export_clipboard">Copy boards as JSON</string>
+    <string name="menu_import_file">Import from file</string>
+    <string name="menu_import_paste">Import by pasting JSON</string>
+
+    <!-- Theme -->
+    <string name="theme_title">Theme</string>
+    <string name="theme_light_option">Light</string>
+    <string name="theme_dark_option">Dark</string>
+    <string name="theme_system_option">System</string>
+
+    <!-- Boards pane -->
+    <string name="boards_title">Boards (%1$d)</string>
+    <string name="board_list_add_label">Add board</string>
+    <string name="board_list_empty_message">No boards yet. Add the first one.</string>
+    <string name="board_list_delete_button">Delete</string>
+    <string name="board_list_delete_dialog_title">Delete board</string>
+    <string name="board_list_delete_dialog_message">Delete board #%1$d (%2$s)? This action cannot be undone.</string>
+    <string name="board_card_bingo">BINGO! %1$s</string>
+    <string name="board_card_missing">%1$d to go</string>
+
+    <!-- Create board -->
+    <string name="create_board_title">Add board</string>
+    <string name="create_board_identifier_label">Identifier</string>
+    <string name="create_board_save_button">Save</string>
+    <string name="create_board_error_blank_identifier">The identifier cannot be blank</string>
+    <string name="create_board_error_duplicate_identifier">A board with that identifier already exists</string>
+
+    <!-- Game setup -->
+    <string name="game_setup_title">New game</string>
+    <string name="game_setup_no_boards_message">Register at least one board to play</string>
+    <string name="game_setup_select_mode_message">Select the game mode</string>
+    <string name="game_setup_start_button">Play</string>
+    <string name="game_setup_mode_columna">Column</string>
+    <string name="game_setup_mode_o">O</string>
+    <string name="game_setup_mode_l">L</string>
+    <string name="game_setup_mode_i">I</string>
+    <string name="game_setup_mode_carton_completo">Full card</string>
+
+    <!-- Game play -->
+    <string name="game_play_title">Game in progress</string>
+    <string name="game_play_mode_status">Mode: %1$s · Calls: %2$d</string>
+    <string name="game_play_bingo_announcement">Bingo! #%1$d %2$s · %3$s</string>
+    <string name="game_play_number_label">Number</string>
+    <string name="game_play_submit_call_button">Call number</string>
+    <string name="game_play_letter_calls">%1$s: %2$s</string>
+    <string name="game_play_possible_winners_title">Possible winners</string>
+    <string name="game_play_possible_winners_empty">No board is close to winning.</string>
+    <string name="win_prediction_row">#%1$d %2$s · %3$d to go</string>
+    <string name="win_prediction_row_letter">#%1$d %2$s · %3$s · %4$d to go</string>
+    <string name="game_play_end_game_button">End game</string>
+    <string name="game_play_end_game_dialog_title">End game?</string>
+    <string name="game_play_end_game_dialog_message">The called numbers and announced bingos for this game will be lost.</string>
+    <string name="game_play_end_game_confirm_button">End</string>
+    <string name="game_play_column_close">Close</string>
+    <string name="game_play_column_reopen">Reopen</string>
+    <string name="game_play_error_invalid_number">Invalid number (1-75)</string>
+    <string name="game_play_error_letter_mismatch">The selected letter does not match that number</string>
+    <string name="game_play_error_duplicate_call">Number already called: %1$d</string>
+
+    <!-- Win patterns -->
+    <string name="pattern_column">Column %1$s</string>
+    <string name="pattern_o">O</string>
+    <string name="pattern_l">L</string>
+    <string name="pattern_i">I</string>
+    <string name="pattern_full_card">Full card</string>
+    <string name="pattern_other">%1$s</string>
+
+    <!-- Import and export -->
+    <string name="import_boards_title">Import boards</string>
+    <string name="import_boards_json_label">Boards JSON</string>
+    <string name="import_boards_submit_button">Import</string>
+    <string name="import_boards_error_blank_input">Nothing to import: the content is empty</string>
+    <string name="import_boards_error_invalid_json">The content is not valid boards JSON; no board was imported</string>
+    <string name="import_boards_error_unreadable_file">The selected file could not be read</string>
+    <string name="import_result_title">Import finished</string>
+    <string name="import_error_title">Could not import</string>
+    <string name="import_result_message">%1$d imported, %2$d skipped</string>
+    <string name="export_title">Export boards</string>
+    <string name="export_saved_message">Boards exported to %1$s</string>
+    <string name="export_copied_message">Boards copied to the clipboard as JSON</string>
+    <string name="export_failed_message">The file could not be written</string>
+</resources>

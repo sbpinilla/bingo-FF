@@ -1,5 +1,8 @@
 package com.sergiodev.bingo.ui
 
+import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -33,11 +36,11 @@ fun SetupPane(session: GameSessionHolder, modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Nuevo juego", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(Res.string.game_setup_title), style = MaterialTheme.typography.titleLarge)
         if (!state.hasBoards) {
-            Text("Registra al menos un cartón para poder jugar")
+            Text(stringResource(Res.string.game_setup_no_boards_message))
         }
-        Text("Selecciona el modo de juego")
+        Text(stringResource(Res.string.game_setup_select_mode_message))
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -46,7 +49,7 @@ fun SetupPane(session: GameSessionHolder, modifier: Modifier = Modifier) {
                 FilterChip(
                     selected = state.selectedMode == mode,
                     onClick = { session.selectMode(mode) },
-                    label = { Text(mode.label(), maxLines = 1) },
+                    label = { Text(mode.uiText().resolve(), maxLines = 1) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Success,
                         selectedLabelColor = OnSuccess,
@@ -59,7 +62,7 @@ fun SetupPane(session: GameSessionHolder, modifier: Modifier = Modifier) {
             enabled = state.canStart,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Jugar")
+            Text(stringResource(Res.string.game_setup_start_button))
         }
     }
 }

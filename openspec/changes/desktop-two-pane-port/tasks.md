@@ -107,10 +107,10 @@ Chain strategy: size-exception
 
 ## Unit 9: ui-localization
 
-- [ ] 9.1 RED: `DT/i18n/StringsParityTest.kt` (keys of `values` equal `values-en`) and `LocaleSelectionTest.kt` (en gives English, fr gives Spanish).
-- [ ] 9.2 GREEN: `R/values/strings.xml` (es), `R/values-en/strings.xml`; `D/ui/Strings.kt` maps reason types (BlankIdentifier, DuplicateIdentifier, InvalidJson, InvalidNumber, LetterMismatch, DuplicateCall(n), import counts) to text.
-- [ ] 9.3 RED then GREEN: `ReasonMappingTest.kt` (DuplicateCall(47) message contains 47); replace all hard-coded UI strings.
-- [ ] 9.4 Commit: `feat(i18n): add Spanish and English localization`
+- [x] 9.1 RED: `DT/i18n/StringsParityTest.kt` (keys of `values` equal `values-en`) and `LocaleSelectionTest.kt` (en gives English, fr gives Spanish).
+- [x] 9.2 GREEN: `R/values/strings.xml` (es), `R/values-en/strings.xml`; `D/ui/Strings.kt` maps reason types (BlankIdentifier, DuplicateIdentifier, InvalidJson, InvalidNumber, LetterMismatch, DuplicateCall(n), import counts) to text.
+- [x] 9.3 RED then GREEN: `ReasonMappingTest.kt` (DuplicateCall(47) message contains 47); replace all hard-coded UI strings.
+- [x] 9.4 Commit: `feat(i18n): add Spanish and English localization`
 
 ## Unit 10: app-navigation
 
