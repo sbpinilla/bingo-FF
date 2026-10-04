@@ -67,12 +67,12 @@ Chain strategy: size-exception
 
 ## Unit 4: board-export-import
 
-- [ ] 4.1 RED: `CT/data/json/BoardJsonCodecTest.kt` (bare array, round trip, missing `numbers` rejects all, non-array root, Android sample fixture in `src/commonTest/resources`).
-- [ ] 4.2 GREEN: `C/data/json/BoardJsonCodec.kt` (`BoardDto`, `ignoreUnknownKeys = true`).
-- [ ] 4.3 RED: `CT/presentation/ImportExportHolderTest.kt` (BlankInput, InvalidJson, mixed payload imported=1 skipped=3, summary clearable, cancelled dialog writes nothing) with `FakeFileDialogs`.
-- [ ] 4.4 GREEN: `C/presentation/ImportExportHolder.kt`, `D/platform/{FileDialogs,Clipboard}.kt` (AWT, Main dispatcher, add `kotlinx-coroutines-swing`).
-- [ ] 4.5 UI: `D/ui/{ImportDialog,AppMenu}.kt` import/export entries; manual smoke of AWT dialog (Linux open question).
-- [ ] 4.6 Commit: `feat(boards): add JSON export and import with Android-compatible format`
+- [x] 4.1 RED: `CT/data/json/BoardJsonCodecTest.kt` (bare array, round trip, missing `numbers` rejects all, non-array root, Android sample fixture in `src/commonTest/resources`).
+- [x] 4.2 GREEN: `C/data/json/BoardJsonCodec.kt` (`BoardDto`, `ignoreUnknownKeys = true`).
+- [x] 4.3 RED: `CT/presentation/ImportExportHolderTest.kt` (BlankInput, InvalidJson, mixed payload imported=1 skipped=3, summary clearable, cancelled dialog writes nothing) with `FakeFileDialogs`.
+- [x] 4.4 GREEN: `C/presentation/ImportExportHolder.kt`, `D/platform/{FileDialogs,Clipboard}.kt` (AWT, Main dispatcher, add `kotlinx-coroutines-swing`).
+- [x] 4.5 UI: `D/ui/{ImportDialog,AppMenu}.kt` import/export entries; manual smoke of AWT dialog (Linux open question).
+- [x] 4.6 Commit: `feat(boards): add JSON export and import with Android-compatible format`
 
 ## Unit 5: game-session
 

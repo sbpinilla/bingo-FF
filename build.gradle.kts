@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "com.sergiodev.bingo"
@@ -18,6 +19,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

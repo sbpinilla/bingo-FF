@@ -30,7 +30,20 @@ class FakeBoardRepository(seed: List<BoardCard> = emptyList()) : BoardRepository
         return Result.success(Unit)
     }
 
-    override suspend fun importBoards(boards: List<BoardCard>): ImportResult = ImportResult(0, 0)
+    var importCalls = 0
+        private set
+
+    /** Same dedup contract as the real repository: id OR identifier already stored, or repeated in-batch, is skipped. */
+    override suspend fun importBoards(boards: List<BoardCard>): ImportResult {
+        importCalls++
+        val accepted = mutableListOf<BoardCard>()
+        for (candidate in boards) {
+            val taken = this.boards.value + accepted
+            if (taken.none { it.id == candidate.id || it.identifier == candidate.identifier }) accepted += candidate
+        }
+        this.boards.value = this.boards.value + accepted
+        return ImportResult(imported = accepted.size, skipped = boards.size - accepted.size)
+    }
 
     override suspend fun deleteBoard(id: Long) {
         deletedIds += id

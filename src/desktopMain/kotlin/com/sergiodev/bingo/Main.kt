@@ -22,6 +22,7 @@ fun main() = application {
         state = state,
     ) {
         window.minimumSize = Dimension(1200, 700)
+        container.dialogOwner = window
         AppWindow(container)
     }
 }

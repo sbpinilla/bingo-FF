@@ -132,3 +132,43 @@ Test count: 47 before, 83 after (36 new: 1 spike + 8 repository + 5 AppDirs + 16
 - UI strings are hard-coded Spanish (app default locale) pending unit 9. Delete action is a text button (no material-icons dependency).
 - Risk: jlinked runtime in the package lists modules `java.base java.datatransfer java.xml java.prefs java.desktop java.logging jdk.crypto.ec`; the SQLite JNI only needs `java.base`, but a packaged-launcher GUI run was not done in this unit (verify in unit 10).
 - The unit 3 tasks 3.2 and 3.4 each list scenario names; the five spec scenarios of `import_skips_dups` were split across two tests.
+
+## Unit 4: board-export-import (DONE, tasks 4.1-4.6, Strict TDD)
+
+- [x] 4.1 RED: `data/json/BoardJsonCodecTest` (10, commonTest), `AndroidExportFixtureTest` (2, desktopTest, reads `src/commonTest/resources/android-export-sample.json`)
+- [x] 4.2 GREEN: `data/json/BoardJsonCodec` (+ internal `BoardDto`), `ignoreUnknownKeys = true`; `kotlin-serialization` plugin and `serialization-json` added to commonMain
+- [x] 4.3 RED: `presentation/ImportExportHolderTest` (17) with `FakeFileDialogs`, `FakeTextFiles`, `FakeClipboard` (`FakePlatform.kt`); `FakeBoardRepository.importBoards` now implements the real dedup contract
+- [x] 4.4 GREEN: `platform/{FileDialogs,TextFiles,Clipboard}` interfaces (commonMain), `presentation/ImportExportHolder` (+ `ImportExportState`, `ImportErrorReason`, `ExportOutcome`); desktopMain `platform/{AwtFileDialogs,JvmTextFiles,AwtClipboard}` (dialogs on `Dispatchers.Main`); `AppContainer.importExportHolder`, `dialogOwner` set from `Main`
+- [x] 4.5 UI: `ui/AppMenu` (top bar overflow with 4 entries), `ui/ImportDialog` (paste dialog + summary/error/export notices), wired in `AppWindow`
+- [x] 4.6 Commit `feat(boards): add JSON export and import with Android-compatible format`
+
+### TDD Cycle Evidence (unit 4)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 4.1/4.2 | `data/json/BoardJsonCodecTest.kt` | Unit | 83/83 (unit 3 baseline) | Written; `compileTestKotlinDesktop` failed: Unresolved reference 'BoardJsonCodec' | 10/10 passed | round trip (2 boards), empty, exact bare-array string, malformed, missing identifier, one entry missing numbers rejects all, non-array root, wrong-typed numbers/identifier, unknown keys, Gson-shaped sample with `\u003d`/`\u003c` escapes | None needed |
+| 4.1 | `data/json/AndroidExportFixtureTest.kt` | Unit (resource file) | 93/93 | Written alongside; codec already existed, so passes on first run (fixture coverage, not new behavior) | 2/2 passed | file decode with escapes, re-encode round trip | None needed |
+| 4.3/4.4 | `presentation/ImportExportHolderTest.kt` | Unit with fakes | 95/95 | Written; compile failed: Unresolved reference 'platform' / 'FileDialogs' / 'TextFiles' / 'Clipboard' | 17/17 passed | paste: blank, invalid, missing-numbers all-or-nothing, mixed payload imported=1 skipped=3, summary cleared, error cleared on edit; file: valid, cancelled (state unchanged, 0 import calls), unreadable, non-board content, blank file; export: path + default name, cancelled (0 writes), write failure, clipboard, outcome cleared, export-then-import round trip | None needed |
+| 4.5 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, logic lives in the tested holder | compiles; `./gradlew run` started the window, created the DB, no exception | n/a | n/a |
+
+Test count: 83 before, 112 after (29 new: 10 codec + 2 fixture + 17 holder). `./gradlew test`: BUILD SUCCESSFUL.
+
+### Work Unit Evidence (unit 4)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew test` (JAVA_HOME 17): BUILD SUCCESSFUL; tests=112 skipped=0 failures=0 (codec 10, fixture 2, holder 17) |
+| Runtime harness | `./gradlew run` ~50s then SIGTERM: app started and opened the Room DB with no exception. AWT open/save dialogs, clipboard and the paste dialog were NOT exercised (no GUI driver); manual check pending, esp. Linux GTK `FileDialog` and Windows `*.json` pattern |
+| Rollback boundary | `data/json`, `platform/`, `presentation/ImportExportHolder`, `ui/{AppMenu,ImportDialog}`, `AppWindow`/`AppContainer`/`Main` edits, serialization lines in `build.gradle.kts`, `FakeBoardRepository.importBoards`, `commonTest/resources` (revert the unit 4 commit) |
+
+### Deviations / notes (unit 4)
+
+- Interfaces live in commonMain `platform/` (the holder needs them); only the AWT/NIO implementations are in desktopMain. Added a `TextFiles` port (not in design) so the holder does the file I/O without `java.*` in commonMain. `FileDialogs` returns `String` paths (not `java.nio.file.Path`) for the same reason.
+- Import semantics follow the Android code: skip id OR identifier already stored, in-batch duplicates keep the first, malformed JSON rejects everything. Dedup is reused from the atomic `importBoards`/`importNew` of unit 3 (no new repository code).
+- Strictness difference: kotlinx (non-lenient) rejects what Gson tolerates (quoted numbers, unquoted keys); anything Gson writes is valid strict JSON, so Android exports always import. Gson-escaped `\u003d` style characters decode correctly.
+- Pasted text is cleared on every submit (Android behavior); import errors for file imports show in a notice dialog, for pasted imports inline in the paste dialog. Cancel is silent in both flows.
+- Entry point is a top bar with an overflow "Menu" in `AppWindow` (DropdownMenu), not a native MenuBar, since `AppWindow` has no window scope; revisit in unit 10 polish.
+- Export always writes (an empty list yields `[]`); no `.json` extension is forced on the chosen save name.
+- The add-board dialog misalignment reported by the user is deferred; the import dialog reuses the same AlertDialog title/body/buttons layout.
+- UI strings hard-coded Spanish pending unit 9.
+- `~/Library/Application Support/BingoFF` was removed after the smoke run.
