@@ -3,7 +3,7 @@ schema: spec-driven
 context: |
   Project: bingo-FF (Engram key: bingo-ff). Desktop port of the Android app BingoFF
   (/Users/sergio/AndroidStudioProjects/BingoFF, READ-ONLY reference, never modify).
-  Target stack (PLANNED, not scaffolded): Kotlin Multiplatform + Compose Multiplatform
+  Target stack (scaffolded in unit 1): Kotlin Multiplatform + Compose Multiplatform
   Desktop (JVM), packaged for macOS, Windows, Linux. Standalone project.
   Android reference: Kotlin 2.2.10, Compose M3, MVVM + Hilt + Room 2.7.2 + DataStore + Gson,
   8 openspec capabilities in its openspec/specs/.
@@ -20,25 +20,23 @@ delivery:
   note: No PRs. Commit straight to main, one conventional commit per spec capability.
   review_budget_lines: not-applicable
 
-# Strict TDD is INTENDED (Android project used it for domain and ViewModel logic).
-# Currently false: project is empty, no Gradle scaffold, no workspace-level test command.
-# Re-evaluate and flip to true once `./gradlew test` exists.
-strict_tdd: false
-strict_tdd_intended: true
+# Strict TDD is ACTIVE from unit 2 (flipped at the end of unit 1: `./gradlew test` exists).
+strict_tdd: true
 
-projects: []   # none discovered; planned: root Gradle KMP desktop project
+projects:
+  - {path: ., type: gradle-kmp, target: desktop-jvm}
 
 testing:
-  runner: none (planned: kotlin.test / JUnit on JVM via Gradle)
-  planned_command: ./gradlew test
+  runner: Gradle desktopTest (kotlin.test on JUnit, JVM)
+  command: ./gradlew test
   layers:
-    unit: {available: false, planned: kotlin.test / JUnit}
+    unit: {available: true, framework: kotlin.test}
     integration: {available: false}
     e2e: {available: false}
   coverage: {available: false}
   quality:
     linter: {available: false}
-    type_checker: {available: true, note: "Kotlin compiler, once scaffolded"}
+    type_checker: {available: true, note: "Kotlin compiler via ./gradlew compileKotlinDesktop"}
     formatter: {available: false}
 
 rules:

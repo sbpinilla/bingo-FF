@@ -35,14 +35,14 @@ Chain strategy: size-exception
 
 ## Unit 1: scaffold (no strict TDD yet)
 
-- [ ] 1.1 Create `settings.gradle.kts`, `build.gradle.kts` (KMP `jvm("desktop")`, JVM toolchain 17), `gradle.properties`, Gradle wrapper 9.x.
-- [ ] 1.2 SPIKE (toolchain): create `gradle/libs.versions.toml`; verify each pin against Maven Central and the Gradle plugin portal at apply time (Kotlin 2.4.20, CMP 1.12.1, Room 2.8.5, sqlite-bundled, KSP, coroutines core/test/swing, serialization-json); fix failing pins only in the catalog.
-- [ ] 1.3 Add test deps `kotlin-test`, `kotlinx-coroutines-test` and `CT/SmokeTest.kt` (`smoke_test_runs`); confirm `./gradlew test` passes.
-- [ ] 1.4 Configure `compose.desktop.application` in `build.gradle.kts`: mainClass, nativeDistributions Dmg/Msi/Deb, icons under `src/desktopMain/resources`.
-- [ ] 1.5 Create `.github/workflows/build.yml`: matrix macos/windows/ubuntu, Temurin 21, `./gradlew test packageDistributionForCurrentOS`.
-- [ ] 1.6 Create `D/Main.kt` and `D/ui/AppWindow.kt`: Row with weight 2f and 1f placeholder panes, default 1440x860, `window.minimumSize` 1200x700.
-- [ ] 1.7 Set `strict_tdd: true` in `openspec/config.yaml` (and update `testing.runner`); add `.gitignore`.
-- [ ] 1.8 Commit: `chore: scaffold KMP desktop project with CI and two-pane shell`
+- [x] 1.1 Create `settings.gradle.kts`, `build.gradle.kts` (KMP `jvm("desktop")`, JVM toolchain 17), `gradle.properties`, Gradle wrapper 9.x.
+- [x] 1.2 SPIKE (toolchain): create `gradle/libs.versions.toml`; verify each pin against Maven Central and the Gradle plugin portal at apply time (Kotlin 2.4.20, CMP 1.12.1, Room 2.8.5, sqlite-bundled, KSP, coroutines core/test/swing, serialization-json); fix failing pins only in the catalog.
+- [x] 1.3 Add test deps `kotlin-test`, `kotlinx-coroutines-test` and `CT/SmokeTest.kt` (`smoke_test_runs`); confirm `./gradlew test` passes.
+- [x] 1.4 Configure `compose.desktop.application` in `build.gradle.kts`: mainClass, nativeDistributions Dmg/Msi/Deb, icons under `src/desktopMain/resources`.
+- [x] 1.5 Create `.github/workflows/build.yml`: matrix macos/windows/ubuntu, Temurin 21, `./gradlew test packageDistributionForCurrentOS`.
+- [x] 1.6 Create `D/Main.kt` and `D/ui/AppWindow.kt`: Row with weight 2f and 1f placeholder panes, default 1440x860, `window.minimumSize` 1200x700.
+- [x] 1.7 Set `strict_tdd: true` in `openspec/config.yaml` (and update `testing.runner`); add `.gitignore`.
+- [x] 1.8 Commit: `chore: scaffold KMP desktop project with CI and two-pane shell`
 
 ## Unit 2: domain port (strict TDD)
 
