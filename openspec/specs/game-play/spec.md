@@ -114,3 +114,10 @@ In COLUMNA mode the user MUST be able to toggle a letter as dismissed (closed) v
 - GIVEN letter G is not dismissed
 - WHEN the user toggles it twice
 - THEN it is dismissed, then restored
+
+#### Scenario: Closed column is struck through on every board card
+- GIVEN a COLUMNA game is active
+- WHEN the user dismisses letter B
+- THEN every left-pane board card shows a vertical strike line over the B column, from its letter header to the last row
+- AND reopening B removes the line
+- AND outside COLUMNA, or with no active game, no column is struck

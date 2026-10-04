@@ -178,6 +178,35 @@ class BoardsPaneStateTest {
     }
 
     @Test
+    fun restoredColumnaGame_exposesDismissedLettersForStrikingThroughColumns() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.COLUMNA, listOf(3, 7), setOf(BingoLetter.B, BingoLetter.O)),
+        )
+
+        val f = fixture(repo = repo, start = null)
+
+        assertEquals(setOf(BingoLetter.B, BingoLetter.O), f.card(1).dismissedLetters)
+    }
+
+    @Test
+    fun restoredNonColumnaGame_hasNoStruckColumns() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.L, listOf(3, 7), setOf(BingoLetter.B)),
+        )
+
+        val f = fixture(seed = listOf(board1), repo = repo, start = null)
+
+        assertTrue(f.card(1).dismissedLetters.isEmpty())
+    }
+
+    @Test
+    fun noActiveGame_hasNoStruckColumns() = runTest {
+        val f = fixture(start = null)
+
+        assertTrue(f.card(1).dismissedLetters.isEmpty())
+    }
+
+    @Test
     fun restoredNonColumnaGame_ignoresDismissedLettersForTheHighlight() = runTest {
         val repo = InMemoryActiveGameRepository(
             ActiveGame(GameMode.L, listOf(3, 7, 12, 14, 15, 20, 35, 50, 65), setOf(BingoLetter.B)),

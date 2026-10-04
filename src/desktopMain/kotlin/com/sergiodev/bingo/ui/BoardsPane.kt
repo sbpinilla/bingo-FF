@@ -11,6 +11,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -56,6 +59,7 @@ private val CardGap = ShellLayout.CARD_GAP.dp
 private const val BOARD_SIZE = 5
 private val WinnerBorderWidth = 3.dp
 private val DeleteButtonSize = 24.dp
+private val StruckColumnWidth = 3.dp
 
 /** Left pane: all boards as compact 5x5 cards in an adaptive, vertically scrolling grid. */
 @Composable
@@ -148,23 +152,43 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                     fontSize = 13.sp,
                 )
             }
-            Row(Modifier.fillMaxWidth()) {
-                BingoLetter.entries.forEach { letter ->
-                    Text(
-                        letter.name,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                    )
-                }
-            }
-            (0 until BOARD_SIZE).forEach { row ->
+            val struckColor = MaterialTheme.colorScheme.error
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth().drawWithContent {
+                    drawContent()
+                    // A closed COLUMNA column is struck through from its letter down to the last row.
+                    val columnWidth = size.width / BOARD_SIZE
+                    card?.dismissedLetters?.forEach { letter ->
+                        val x = columnWidth * (letter.ordinal + 0.5f)
+                        drawLine(
+                            color = struckColor,
+                            start = Offset(x, 0f),
+                            end = Offset(x, size.height),
+                            strokeWidth = StruckColumnWidth.toPx(),
+                            cap = StrokeCap.Round,
+                        )
+                    }
+                },
+            ) {
                 Row(Modifier.fillMaxWidth()) {
-                    BingoLetter.entries.forEachIndexed { column, letter ->
-                        val cell = card?.cells?.get(row * BOARD_SIZE + column)
-                            ?: CellState(board.numberAt(GridPosition(letter, row + 1)), marked = false)
-                        BoardCell(cell, Modifier.weight(1f))
+                    BingoLetter.entries.forEach { letter ->
+                        Text(
+                            letter.name,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
+                (0 until BOARD_SIZE).forEach { row ->
+                    Row(Modifier.fillMaxWidth()) {
+                        BingoLetter.entries.forEachIndexed { column, letter ->
+                            val cell = card?.cells?.get(row * BOARD_SIZE + column)
+                                ?: CellState(board.numberAt(GridPosition(letter, row + 1)), marked = false)
+                            BoardCell(cell, Modifier.weight(1f))
+                        }
                     }
                 }
             }
