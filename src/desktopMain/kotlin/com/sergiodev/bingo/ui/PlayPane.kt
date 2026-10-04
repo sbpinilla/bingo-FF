@@ -70,6 +70,11 @@ fun PlayPane(play: GamePlayHolder, prediction: PlayPaneState, session: GameSessi
     var confirmingEnd by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
+    // Keep the number field focused after every action so the operator can keep typing calls.
+    val toggle: (BingoLetter) -> Unit = {
+        play.onLetterDismissToggled(it)
+        focus.requestFocus()
+    }
 
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -80,8 +85,8 @@ fun PlayPane(play: GamePlayHolder, prediction: PlayPaneState, session: GameSessi
         WinnerAnnouncements(state)
         NumberEntry(state, play, focus)
         HorizontalDivider()
-        CalledGrid(state, onToggle = play::onLetterDismissToggled)
-        PossibleWinners(possible, onToggle = play::onLetterDismissToggled)
+        CalledGrid(state, onToggle = toggle)
+        PossibleWinners(possible, onToggle = toggle)
         Button(onClick = { confirmingEnd = true }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.game_play_end_game_button))
         }
@@ -116,6 +121,10 @@ private fun WinnerAnnouncements(state: GamePlayUiState) {
 
 @Composable
 private fun NumberEntry(state: GamePlayUiState, play: GamePlayHolder, focus: FocusRequester) {
+    val submit: () -> Unit = {
+        play.onSubmitCall()
+        focus.requestFocus()
+    }
     OutlinedTextField(
         value = state.numberInput,
         onValueChange = { play.onNumberInputChanged(sanitizeNumberInput(it)) },
@@ -124,13 +133,13 @@ private fun NumberEntry(state: GamePlayUiState, play: GamePlayHolder, focus: Foc
         isError = state.inputError != null,
         supportingText = { state.inputError?.let { Text(it.uiText().resolve()) } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        keyboardActions = KeyboardActions(onDone = { play.onSubmitCall() }),
+        keyboardActions = KeyboardActions(onDone = { submit() }),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focus)
             .onPreviewKeyEvent { event ->
                 val enter = event.key == Key.Enter || event.key == Key.NumPadEnter
-                if (enter && event.type == KeyEventType.KeyUp) play.onSubmitCall()
+                if (enter && event.type == KeyEventType.KeyUp) submit()
                 enter
             },
     )
@@ -138,12 +147,15 @@ private fun NumberEntry(state: GamePlayUiState, play: GamePlayHolder, focus: Foc
         BingoLetter.entries.forEach { letter ->
             FilterChip(
                 selected = state.selectedLetter == letter,
-                onClick = { play.onLetterSelected(letter) },
+                onClick = {
+                    play.onLetterSelected(letter)
+                    focus.requestFocus()
+                },
                 label = { Text(letter.name) },
             )
         }
     }
-    Button(onClick = play::onSubmitCall, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.game_play_submit_call_button)) }
+    Button(onClick = submit, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.game_play_submit_call_button)) }
 }
 
 /** Five bordered rows B-I-N-G-O; COLUMNA rows get a toggle button and right-click to dismiss. */
