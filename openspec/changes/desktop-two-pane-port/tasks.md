@@ -46,14 +46,14 @@ Chain strategy: size-exception
 
 ## Unit 2: domain port (strict TDD)
 
-- [ ] 2.1 RED: port `CT/domain/model/BingoLetterTest.kt`, `BoardCardTest.kt`, `GameModeTest.kt` from the Android tests (read-only reference).
-- [ ] 2.2 GREEN: `C/domain/model/{BingoLetter,BoardCard,GameMode,GridPosition,WinPattern}.kt` ported verbatim (no `java.*`).
-- [ ] 2.3 RED: `CT/domain/game/BingoWinCheckerTest.kt`, `GameSessionTest.kt` (patterns COLUMN_B..O, O, L, I, FULL_CARD).
-- [ ] 2.4 GREEN: `C/domain/game/{BingoWinChecker,WinAnnouncement,AnnouncedWin,GameSession}.kt`.
-- [ ] 2.5 RED: `CT/domain/game/WinPredictionTest.kt` (thresholds 2/3/3/3/10, no call ceiling, ordering, exclusions).
-- [ ] 2.6 GREEN: `C/domain/game/WinPrediction.kt` (`predictPossibleWinners`); RED then GREEN `CT/domain/game/ReplayTest.kt` for pure `replay(mode, called, boards)`.
-- [ ] 2.7 Create repository ports `C/domain/repository/{BoardRepository,ActiveGameRepository,ThemeRepository,ImportResult}.kt` (interfaces only).
-- [ ] 2.8 Commit: `feat(domain): port bingo domain model, win checker and prediction`
+- [x] 2.1 RED: port `CT/domain/model/BingoLetterTest.kt`, `BoardCardTest.kt`, `GameModeTest.kt` from the Android tests (read-only reference).
+- [x] 2.2 GREEN: `C/domain/model/{BingoLetter,BoardCard,GameMode,GridPosition,WinPattern}.kt` ported verbatim (no `java.*`).
+- [x] 2.3 RED: `CT/domain/game/BingoWinCheckerTest.kt`, `GameSessionTest.kt` (patterns COLUMN_B..O, O, L, I, FULL_CARD).
+- [x] 2.4 GREEN: `C/domain/game/{BingoWinChecker,WinAnnouncement,AnnouncedWin,GameSession}.kt`.
+- [x] 2.5 RED: `CT/domain/game/WinPredictionTest.kt` (thresholds 2/3/3/3/10, no call ceiling, ordering, exclusions).
+- [x] 2.6 GREEN: `C/domain/game/WinPrediction.kt` (`predictPossibleWinners`); RED then GREEN `CT/domain/game/ReplayTest.kt` for pure `replay(mode, called, boards)`.
+- [x] 2.7 Create repository ports `C/domain/repository/{BoardRepository,ActiveGameRepository,ThemeRepository,ImportResult}.kt` (interfaces only).
+- [x] 2.8 Commit: `feat(domain): port bingo domain model, win checker and prediction`
 
 ## Unit 3: board-management
 
