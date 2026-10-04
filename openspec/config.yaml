@@ -1,0 +1,51 @@
+schema: spec-driven
+
+context: |
+  Project: bingo-FF (Engram key: bingo-ff). Desktop port of the Android app BingoFF
+  (/Users/sergio/AndroidStudioProjects/BingoFF, READ-ONLY reference, never modify).
+  Target stack (PLANNED, not scaffolded): Kotlin Multiplatform + Compose Multiplatform
+  Desktop (JVM), packaged for macOS, Windows, Linux. Standalone project.
+  Android reference: Kotlin 2.2.10, Compose M3, MVVM + Hilt + Room 2.7.2 + DataStore + Gson,
+  8 openspec capabilities in its openspec/specs/.
+  Product change: two-pane layout (left: all boards with called numbers marked live;
+  right: game setup and play) instead of multi-screen navigation.
+  Artifacts language: English. Commits: conventional, no AI attribution.
+
+persistence:
+  mode: hybrid
+  engram_project: bingo-ff
+
+delivery:
+  strategy: exception-ok
+  note: No PRs. Commit straight to main, one conventional commit per spec capability.
+  review_budget_lines: not-applicable
+
+# Strict TDD is INTENDED (Android project used it for domain and ViewModel logic).
+# Currently false: project is empty, no Gradle scaffold, no workspace-level test command.
+# Re-evaluate and flip to true once `./gradlew test` exists.
+strict_tdd: false
+strict_tdd_intended: true
+
+projects: []   # none discovered; planned: root Gradle KMP desktop project
+
+testing:
+  runner: none (planned: kotlin.test / JUnit on JVM via Gradle)
+  planned_command: ./gradlew test
+  layers:
+    unit: {available: false, planned: kotlin.test / JUnit}
+    integration: {available: false}
+    e2e: {available: false}
+  coverage: {available: false}
+  quality:
+    linter: {available: false}
+    type_checker: {available: true, note: "Kotlin compiler, once scaffolded"}
+    formatter: {available: false}
+
+rules:
+  proposal: [Reference Android capabilities by name; state what changes for desktop]
+  specs: [Port the 8 Android capabilities, adapted to the two-pane desktop layout]
+  design: [Keep domain logic platform-agnostic in commonMain where feasible]
+  tasks: [One work unit per spec capability, each committable on main]
+  apply: [Never edit the Android repo; commit conventional, no Co-Authored-By]
+  verify: [Run ./gradlew test once available]
+  archive: [Merge delta specs into openspec/specs]
