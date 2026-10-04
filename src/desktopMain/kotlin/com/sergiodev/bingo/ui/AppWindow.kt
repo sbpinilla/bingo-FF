@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import com.sergiodev.bingo.di.AppContainer
 import com.sergiodev.bingo.presentation.CreateBoardHolder
 import com.sergiodev.bingo.presentation.RightPaneDestination
+import com.sergiodev.bingo.ui.theme.BingoTheme
 
 /** Two-pane shell: boards on the left (2/3), game setup and play on the right (1/3). */
 @Composable
@@ -28,7 +28,9 @@ fun AppWindow(container: AppContainer) {
     val importExport = container.importExportHolder
     val importExportState by importExport.state.collectAsState()
 
-    MaterialTheme {
+    val themeMode by container.themeHolder.mode.collectAsState()
+
+    BingoTheme(themeMode) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 AppMenu(
@@ -39,6 +41,8 @@ fun AppWindow(container: AppContainer) {
                         importExport.onPasteDialogReset()
                         pasteDialogOpen = true
                     },
+                    themeMode = themeMode,
+                    onThemeChange = container.themeHolder::set,
                 )
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     BoardsPane(

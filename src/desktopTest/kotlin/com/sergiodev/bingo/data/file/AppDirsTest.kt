@@ -49,4 +49,9 @@ class AppDirsTest {
 
         assertEquals(Path.of("/tmp/x/active-game.json"), dirs.activeGameFile)
     }
+
+    @Test
+    fun theme_file_lives_under_the_root() {
+        assertEquals(Path.of("/tmp/x/theme.json"), AppDirs(Path.of("/tmp/x")).themeFile)
+    }
 }

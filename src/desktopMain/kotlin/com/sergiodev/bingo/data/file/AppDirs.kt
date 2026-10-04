@@ -9,6 +9,7 @@ import java.nio.file.Path
 class AppDirs(val root: Path) {
     val databaseFile: Path get() = root.resolve("bingoff.db")
     val activeGameFile: Path get() = root.resolve("active-game.json")
+    val themeFile: Path get() = root.resolve("theme.json")
 
     companion object {
         /** Pure resolution from OS name, home directory and environment (empty values count as unset). */

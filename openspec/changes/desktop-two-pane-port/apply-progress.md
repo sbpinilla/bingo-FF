@@ -285,3 +285,36 @@ Test count: 193 before, 213 after (20 new: 10 + 10). `./gradlew test --rerun-tas
 - Pill text is "Faltan N" (hard-coded Spanish until unit 9); list rows read `#id identifier · LETTER · faltan N`.
 - Manual check pending: pill appears at 2 missing and updates live, right-click or Cerrar on a prediction row removes that letter, restart restores badges and list.
 
+
+## Unit 8: theme-preference (DONE, tasks 8.1-8.4, Strict TDD)
+
+- [x] 8.1 RED: `desktopTest/data/file/FileThemeRepositoryTest` (6), `commonTest/presentation/ThemeHolderTest` (6), `InMemoryThemeRepository` fake, `AppDirsTest` +1
+- [x] 8.2 GREEN: `data/file/FileThemeRepository` (`theme.json` via `JsonFileStore`, `ThemeDto` version 1), `presentation/ThemeHolder` (+ `ThemeMode.isDark(systemDark)`), `AppDirs.themeFile`; `ThemeMode`/`ThemeRepository` reused from unit 2
+- [x] 8.3 UI: `ui/theme/BingoTheme` (Light/Dark schemes ported from Android `Theme.kt`, no dynamic colour), radio group Claro/Oscuro/Sistema in `AppMenu`, `AppWindow` wraps content in `BingoTheme`, `AppContainer.themeHolder`
+- [x] 8.4 Commit `feat(theme): add persisted light, dark and system theme`
+
+### TDD Cycle Evidence (unit 8)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 8.1/8.2 | `data/file/FileThemeRepositoryTest.kt` | Integration (real temp-dir file) | 213/213 | Written; compile failed: Unresolved reference 'FileThemeRepository' | 6/6 passed | no file, corrupt, unrecognized value "SEPIA", set emits and persists, restart restores each of the 3 modes, set before first read wins | None needed |
+| 8.1/8.2 | `presentation/ThemeHolderTest.kt` | Unit with fake | 213/213 | Written; compile failed: Unresolved reference 'ThemeHolder' / 'isDark' | 6/6 passed | startup default vs stored, set twice with ordered writes, new holder restores, explicit modes ignore OS, SYSTEM follows OS both ways | Test helper simplified to one scope expression |
+| 8.2 | `data/file/AppDirsTest.kt` (+1) | Unit | 219/219 | Written after the accessor (trivial), passed on first run | 226/226 | Single | n/a |
+| 8.3 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, logic in tested holder | compiles | n/a | n/a |
+
+Test count: 213 before, 226 after (13 new: 6 + 6 + 1). `./gradlew test --rerun-tasks`: BUILD SUCCESSFUL, failures=0.
+
+### Work Unit Evidence (unit 8)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew desktopTest --tests '*Theme*'` passed (RED: compile errors first); full `./gradlew test --rerun-tasks` tests=226 failures=0 |
+| Runtime harness | Not run (no GUI driver); UI verified by compilation only. Visual legibility NOT inspected |
+| Rollback boundary | `data/file/{FileThemeRepository,AppDirs}`, `presentation/ThemeHolder`, `ui/theme/BingoTheme`, `ui/{AppMenu,AppWindow}`, `di/AppContainer` (revert the unit 8 commit) |
+
+### Deviations / notes (unit 8)
+
+- `ThemeHolder.set` updates state immediately, then persists asynchronously; storage errors are not surfaced. `FileThemeRepository` reads lazily on first collection; a `set` that races the read wins.
+- Palette: only primary/secondary/tertiary are overridden (as in Android); all other roles use Material defaults. Board cells, winner highlight, near-win pill and PlayPane already use `colorScheme` tokens, so they adapt. The Success green chip (`#2E7D32` with white label) is fixed in both themes (contrast ok on light and dark surfaces).
+- The theme radio group sits in the existing overflow menu and keeps it open on selection. Labels are hard-coded Spanish pending unit 9.
+- Manual check pending: switch Claro/Oscuro/Sistema and see the window re-theme at once; relaunch keeps the choice; with Sistema, toggle the OS appearance; inspect winner card, called cells, "Faltan N" pill and green chip in both themes.

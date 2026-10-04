@@ -100,10 +100,10 @@ Chain strategy: size-exception
 
 ## Unit 8: theme-preference
 
-- [ ] 8.1 RED: `DT/data/file/FileThemeRepositoryTest.kt` (default SYSTEM, corrupt falls back, persists) and `CT/presentation/ThemeHolderTest.kt` (startup, set).
-- [ ] 8.2 GREEN: `D/data/file/FileThemeRepository.kt`, `C/presentation/ThemeHolder.kt`, `ThemeMode`.
-- [ ] 8.3 UI: `D/ui/theme/BingoTheme.kt` light/dark palettes; Light/Dark/System in `AppMenu.kt`.
-- [ ] 8.4 Commit: `feat(theme): add persisted light, dark and system theme`
+- [x] 8.1 RED: `DT/data/file/FileThemeRepositoryTest.kt` (default SYSTEM, corrupt falls back, persists) and `CT/presentation/ThemeHolderTest.kt` (startup, set).
+- [x] 8.2 GREEN: `D/data/file/FileThemeRepository.kt`, `C/presentation/ThemeHolder.kt`, `ThemeMode`.
+- [x] 8.3 UI: `D/ui/theme/BingoTheme.kt` light/dark palettes; Light/Dark/System in `AppMenu.kt`.
+- [x] 8.4 Commit: `feat(theme): add persisted light, dark and system theme`
 
 ## Unit 9: ui-localization
 
