@@ -354,3 +354,37 @@ Test count: 226 before, 243 after (17 new: 6 + 2 + 7 + 2). `./gradlew test --rer
 - English for "Faltan N" is "N to go". Key count: 72 in each language.
 - No holder contains UI text (checked); reason types are mapped only in `ui/Strings.kt`. The window title now uses `app_name` ("Bingo FF", previously "BingoFF").
 - Manual check pending: run with `-Duser.language=en` and `-Duser.language=fr`, walk every screen and dialog; check long English strings do not clip in the 1/3 pane and the pill; confirm the packaged app also resolves resources (`packageDistributionForCurrentOS`, unit 10).
+
+## Unit 10: app-navigation (DONE, tasks 10.1-10.4, Strict TDD)
+
+- [x] 10.1 RED then GREEN: `commonTest/presentation/ShellLayoutTest` (10) and `RightPaneDestinationTest` (2, in `ShellStateTest.kt`); `presentation/ShellLayout` (pane weights 2:1, adaptive column count, card size and visible-rows math) and `rightPaneDestination()`
+- [x] 10.2 Polish: `BoardsPane` (shared constants, cells at aspect 1.3, compact delete link, empty state with create action), `AppWindow` (weights from `ShellLayout`, right pane derives destination from `active`), `AppMenu` is now a native `MenuBar` (`FrameWindowScope.AppMenuBar`), `Main.kt` (screen menu bar on macOS, window constants), `CreateBoardDialog` rebuilt as a true 5x5 grid; `build.gradle.kts` `modules("java.instrument", "java.sql", "jdk.unsupported")`
+- [x] 10.3 Verified: `./gradlew test` and `packageDistributionForCurrentOS` (dmg built); packaged app launched with a temp `user.home`, screenshot taken
+- [x] 10.4 Commit `feat(shell): polish two-pane layout, adaptive grid and menu`
+
+### TDD Cycle Evidence (unit 10)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 10.1 | `presentation/ShellLayoutTest.kt` | Unit | 243/243 | Written; compile failed: Unresolved reference 'ShellLayout' | 10/10 (one test expectation of mine was wrong: 1440dp gives 4 columns, not 3; corrected the test, code unchanged) | weights, 2/3 width, grid width, 5/3/1/0 columns, exact column boundary, 1920/1440/1200 windows, card width fills columns, card height, 15 cards at 1920x1080, one row at 1200x700 | None needed |
+| 10.2 | `presentation/ShellStateTest.kt` (RightPaneDestinationTest) | Unit | 253/253 | Written; compile failed: Unresolved reference 'rightPaneDestination' | 2/2 | null and active game | ShellState reuses the function |
+| 10.2 | n/a | UI (Compose) | n/a | n/a | compiles, packaged app screenshot | n/a | n/a |
+
+Test count: 243 before, 255 after (12 new). `./gradlew test --rerun-tasks`: BUILD SUCCESSFUL, failures=0.
+
+### Work Unit Evidence (unit 10)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew desktopTest --tests '*ShellLayout*' --tests '*RightPaneDestination*'`; full `./gradlew test --rerun-tasks` tests=255 failures=0 |
+| Runtime harness | Packaged `BingoFF.app` launched with `JAVA_TOOL_OPTIONS=-Duser.home=<scratchpad>` (real app data untouched), 20 seeded boards plus a restored COLUMNA game; screenshot `scratchpad/shell-1440x860.png`. It opened directly in Play, 4 columns at 1440dp, marks, "Faltan N" pill and winner highlight legible |
+| Rollback boundary | `presentation/{ShellLayout,ShellState}`, `ui/{AppMenu,AppWindow,BoardsPane,CreateBoardDialog}`, `Main.kt`, string `menu_label`, `build.gradle.kts` modules (revert the unit 10 commit) |
+
+### Deviations / notes (unit 10)
+
+- Sizing: cells are 1.3 wider than tall; modelled card height is about 247dp at 1920 (5 columns), so 3 rows need about 780dp of the roughly 960dp grid viewport (winner cards add one line). Not run at 1920x1080 for real (screen is smaller); the 1440x860 screenshot shows 4 columns and about 2.7 rows, consistent with the model.
+- Menu: native `MenuBar` chosen over the overflow: frees the top row for the grid, import/export and the Light/Dark/System radio group are standard menu items, and macOS uses the system menu bar (`apple.laf.useScreenMenuBar`). The menu is not visible in the screenshot (system bar), so it was not clicked. `menu_label` now reads Cartones/Boards; the menu items now use the existing `menu_*` string keys (AppMenu previously had hard-coded Spanish).
+- Right pane: `RightPane` derives the destination with `rightPaneDestination(active)` from the same flow `loaded` gates on, to rule out a Setup flash; `ShellState` still exists, uses the same function, and is covered by its tests.
+- CreateBoardDialog: old layout was one row per letter (B row, I row...) with a left-aligned letter label above each, i.e. transposed from a card, with fields at 64dp. Now: letter headers centred over columns, 5 rows by 5 columns (FREE star in the centre, same 60x56dp box as the fields), 6dp gaps, identifier field as wide as the grid, content centred. Focus order unchanged (column-major, tested by CreateBoardFocusOrderTest). Visual check of the dialog NOT done (not opened).
+- Packaged app: `suggestRuntimeModules` suggested java.instrument and jdk.unsupported; added with java.sql. The jlinked runtime lists java.base, datatransfer, xml, prefs, desktop, instrument, logging, transaction.xa, sql, crypto.ec, unsupported. The app jar holds `natives/osx_arm64/libsqliteJni.dylib` (and x64) and `composeResources/.../values/strings.commonMain.cvr` plus `values-en`. The packaged app started, created `bingoff.db` and rendered Spanish strings.
+- Manual checks pending, all units: (1) create a board in the new 5x5 dialog (errors, Tab/auto-advance, FREE centre); (2) delete a board; (3) import/export via the menu bar (file, clipboard, paste); (4) theme radio group in the menu, persistence across relaunch, Sistema following the OS; (5) start/end game, restored game opens in Play; (6) call numbers, announcements, possible winners, win highlight in both themes; (7) `-Duser.language=en` and `fr`, long English strings in the 1/3 pane; (8) resize to 1200x700 and to 1920x1080 (about 15 cards); (9) open the dmg on a clean machine; (10) Windows/Linux packaging not tried.

@@ -5,6 +5,7 @@ import org.jetbrains.compose.resources.stringResource
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,13 +23,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,9 +42,9 @@ import com.sergiodev.bingo.presentation.BoardCardState
 import com.sergiodev.bingo.presentation.BoardsPaneState
 import com.sergiodev.bingo.presentation.BoardsState
 import com.sergiodev.bingo.presentation.CellState
+import com.sergiodev.bingo.presentation.ShellLayout
 
-private val CardGap = 8.dp
-private const val MIN_CARD_WIDTH_DP = 220
+private val CardGap = ShellLayout.CARD_GAP.dp
 private const val BOARD_SIZE = 5
 private val WinnerBorderWidth = 3.dp
 
@@ -59,7 +60,7 @@ fun BoardsPane(
     val cards by paneState.cards.collectAsState()
     val cardsById = remember(cards) { cards.associateBy { it.id } }
 
-    Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(CardGap)) {
+    Column(modifier = modifier.padding(ShellLayout.PANE_PADDING.dp), verticalArrangement = Arrangement.spacedBy(CardGap)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -70,11 +71,14 @@ fun BoardsPane(
         }
         if (state.boards.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(stringResource(Res.string.board_list_empty_message))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(Res.string.board_list_empty_message))
+                    Button(onClick = onAddBoard) { Text(stringResource(Res.string.board_list_add_label)) }
+                }
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(MIN_CARD_WIDTH_DP.dp),
+                columns = GridCells.Adaptive(ShellLayout.MIN_CARD_WIDTH.dp),
                 horizontalArrangement = Arrangement.spacedBy(CardGap),
                 verticalArrangement = Arrangement.spacedBy(CardGap),
                 modifier = Modifier.fillMaxSize(),
@@ -114,7 +118,7 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
         border = border,
         colors = CardDefaults.outlinedCardColors(containerColor = container),
     ) {
-        Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(Modifier.padding(ShellLayout.CARD_PADDING.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("#${board.id}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(
@@ -125,7 +129,13 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                     fontSize = 14.sp,
                 )
                 card?.missing?.let { NearWinPill(it) }
-                TextButton(onClick = onDelete) { Text(stringResource(Res.string.board_list_delete_button), fontSize = 12.sp) }
+                Text(
+                    stringResource(Res.string.board_list_delete_button),
+                    modifier = Modifier.clickable(role = Role.Button, onClick = onDelete).padding(start = 8.dp, top = 2.dp, bottom = 2.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                )
             }
             if (card != null && winner) {
                 Text(
@@ -183,7 +193,7 @@ private fun BoardCell(cell: CellState, modifier: Modifier) {
     val background = if (cell.marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val textColor = if (cell.marked) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
     Box(
-        modifier = modifier.aspectRatio(1f).padding(1.dp).background(background, MaterialTheme.shapes.extraSmall),
+        modifier = modifier.aspectRatio(ShellLayout.CELL_ASPECT).padding(1.dp).background(background, MaterialTheme.shapes.extraSmall),
         contentAlignment = Alignment.Center,
     ) {
         Text(

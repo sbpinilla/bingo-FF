@@ -48,3 +48,15 @@ class ShellStateTest {
         assertEquals(RightPaneDestination.Setup, shell.destination.value)
     }
 }
+
+class RightPaneDestinationTest {
+    @Test
+    fun no_active_game_is_setup() {
+        assertEquals(RightPaneDestination.Setup, rightPaneDestination(null))
+    }
+
+    @Test
+    fun active_game_is_play() {
+        assertEquals(RightPaneDestination.Play, rightPaneDestination(ActiveGame(GameMode.L, emptyList(), emptySet())))
+    }
+}

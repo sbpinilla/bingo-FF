@@ -62,6 +62,8 @@ compose.desktop {
             packageName = "BingoFF"
             packageVersion = "1.0.0"
             description = "BingoFF desktop"
+            // suggestRuntimeModules asks for java.instrument and jdk.unsupported; java.sql is required by Room/sqlite.
+            modules("java.instrument", "java.sql", "jdk.unsupported")
         }
     }
 }

@@ -114,7 +114,7 @@ Chain strategy: size-exception
 
 ## Unit 10: app-navigation
 
-- [ ] 10.1 RED then GREEN: `CT/presentation/ShellLayoutTest.kt` for column math (pane weights 2:1, about 5 columns at 1280dp, 3 at 800dp).
-- [ ] 10.2 Polish `D/ui/AppWindow.kt`, `BoardsPane.kt` (`GridCells.Adaptive(220.dp)`, keys, empty state with create action), right-pane `when` on `RightPaneDestination`, menu.
-- [ ] 10.3 Manual verify at 1920x1080 (about 15 cards) and 1200x700; run `./gradlew test packageDistributionForCurrentOS`.
-- [ ] 10.4 Commit: `feat(shell): polish two-pane layout, adaptive grid and menu`
+- [x] 10.1 RED then GREEN: `CT/presentation/ShellLayoutTest.kt` for column math (pane weights 2:1, about 5 columns at 1280dp, 3 at 800dp).
+- [x] 10.2 Polish `D/ui/AppWindow.kt`, `BoardsPane.kt` (`GridCells.Adaptive(220.dp)`, keys, empty state with create action), right-pane `when` on `RightPaneDestination`, menu.
+- [x] 10.3 Manual verify at 1920x1080 (about 15 cards) and 1200x700; run `./gradlew test packageDistributionForCurrentOS`.
+- [x] 10.4 Commit: `feat(shell): polish two-pane layout, adaptive grid and menu`

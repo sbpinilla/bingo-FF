@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,9 +40,13 @@ import com.sergiodev.bingo.presentation.sanitizeNumberInput
 
 private const val FIELD_COUNT = 24
 private const val FREE_ROW_INDEX = 2
-private val FieldWidth = 64.dp
+private const val BOARD_SIZE = 5
+private val CellWidth = 60.dp
+private val CellHeight = 56.dp
+private val CellGap = 6.dp
+private val GridWidth = CellWidth * BOARD_SIZE + CellGap * (BOARD_SIZE - 1)
 
-/** Modal dialog with the identifier and the 24 number fields grouped by letter. */
+/** Modal dialog with the identifier and the 24 number fields laid out as the 5x5 card (FREE centre). */
 @Composable
 fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
     val state by holder.state.collectAsState()
@@ -55,7 +62,8 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(CellGap),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 OutlinedTextField(
                     value = state.identifier,
@@ -64,31 +72,47 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
                     singleLine = true,
                     isError = state.identifierError != null,
                     supportingText = { state.identifierError?.let { Text(it.uiText().resolve()) } },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.width(GridWidth),
                 )
-                BingoLetter.entries.forEach { letter ->
-                    Text(letter.name, fontSize = 14.sp)
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val values = state.numbers.getValue(letter)
-                        values.forEachIndexed { index, value ->
-                            if (letter == BingoLetter.N && index == FREE_ROW_INDEX) {
-                                Box(Modifier.width(FieldWidth), contentAlignment = Alignment.Center) { Text("★") }
+                // Letter headers, one per column, centred over the fields below.
+                Row(horizontalArrangement = Arrangement.spacedBy(CellGap)) {
+                    BingoLetter.entries.forEach { letter ->
+                        Text(
+                            letter.name,
+                            modifier = Modifier.width(CellWidth),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                        )
+                    }
+                }
+                // A real 5x5 card: rows top to bottom, columns B I N G O. The centre cell is FREE.
+                (0 until BOARD_SIZE).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(CellGap), verticalAlignment = Alignment.CenterVertically) {
+                        BingoLetter.entries.forEach { letter ->
+                            if (letter == BingoLetter.N && row == FREE_ROW_INDEX) {
+                                Box(Modifier.width(CellWidth).height(CellHeight), contentAlignment = Alignment.Center) {
+                                    Text("★", fontSize = 18.sp)
+                                }
+                            } else {
+                                // The N column has no stored value for the FREE row, so rows below it shift up by one.
+                                val index = if (letter == BingoLetter.N && row > FREE_ROW_INDEX) row - 1 else row
+                                val flat = flatFieldIndex(state.numbers, letter, index)
+                                OutlinedTextField(
+                                    value = state.numbers.getValue(letter)[index],
+                                    onValueChange = { raw ->
+                                        val digits = sanitizeNumberInput(raw)
+                                        holder.onNumberChange(letter, index, digits)
+                                        if (digits.length == MAX_NUMBER_LENGTH && flat < FIELD_COUNT - 1) {
+                                            focusRequesters[flat + 1].requestFocus()
+                                        }
+                                    },
+                                    singleLine = true,
+                                    isError = state.fieldErrors[letter]?.getOrNull(index) != null,
+                                    textStyle = TextStyle(fontSize = 14.sp, textAlign = TextAlign.Center),
+                                    modifier = Modifier.width(CellWidth).height(CellHeight).focusRequester(focusRequesters[flat]),
+                                )
                             }
-                            val flat = flatFieldIndex(state.numbers, letter, index)
-                            OutlinedTextField(
-                                value = value,
-                                onValueChange = { raw ->
-                                    val digits = sanitizeNumberInput(raw)
-                                    holder.onNumberChange(letter, index, digits)
-                                    if (digits.length == MAX_NUMBER_LENGTH && flat < FIELD_COUNT - 1) {
-                                        focusRequesters[flat + 1].requestFocus()
-                                    }
-                                },
-                                singleLine = true,
-                                isError = state.fieldErrors[letter]?.getOrNull(index) != null,
-                                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp, textAlign = TextAlign.Center),
-                                modifier = Modifier.width(FieldWidth).focusRequester(focusRequesters[flat]),
-                            )
                         }
                     }
                 }

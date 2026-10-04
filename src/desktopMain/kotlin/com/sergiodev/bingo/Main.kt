@@ -12,9 +12,20 @@ import com.sergiodev.bingo.resources.*
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Dimension
 
-fun main() = application {
+private const val DEFAULT_WIDTH_DP = 1440
+private const val DEFAULT_HEIGHT_DP = 860
+private const val MIN_WIDTH_PX = 1200
+private const val MIN_HEIGHT_PX = 700
+
+fun main() {
+    // Put the window menu in the macOS system menu bar; ignored elsewhere.
+    System.setProperty("apple.laf.useScreenMenuBar", "true")
+    app()
+}
+
+private fun app() = application {
     val container = remember { AppContainer() }
-    val state = rememberWindowState(size = DpSize(1440.dp, 860.dp))
+    val state = rememberWindowState(size = DpSize(DEFAULT_WIDTH_DP.dp, DEFAULT_HEIGHT_DP.dp))
     Window(
         onCloseRequest = {
             container.close()
@@ -23,7 +34,7 @@ fun main() = application {
         title = stringResource(Res.string.app_name),
         state = state,
     ) {
-        window.minimumSize = Dimension(1200, 700)
+        window.minimumSize = Dimension(MIN_WIDTH_PX, MIN_HEIGHT_PX)
         container.dialogOwner = window
         AppWindow(container)
     }

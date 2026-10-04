@@ -7,7 +7,7 @@
     <string name="common_accept">Aceptar</string>
 
     <!-- Menu -->
-    <string name="menu_label">Menú</string>
+    <string name="menu_label">Cartones</string>
     <string name="menu_export_file">Exportar cartones a archivo</string>
     <string name="menu_export_clipboard">Copiar cartones como JSON</string>
     <string name="menu_import_file">Importar desde archivo</string>

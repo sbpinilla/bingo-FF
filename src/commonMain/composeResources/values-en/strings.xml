@@ -7,7 +7,7 @@
     <string name="common_accept">OK</string>
 
     <!-- Menu -->
-    <string name="menu_label">Menu</string>
+    <string name="menu_label">Boards</string>
     <string name="menu_export_file">Export boards to file</string>
     <string name="menu_export_clipboard">Copy boards as JSON</string>
     <string name="menu_import_file">Import from file</string>
