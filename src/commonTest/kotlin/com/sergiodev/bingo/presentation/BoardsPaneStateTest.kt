@@ -197,4 +197,110 @@ class BoardsPaneStateTest {
         assertEquals(before2, f.card(2))
         assertEquals(2, f.card(1).cells.count { it.marked })
     }
+    @Test
+    fun noGame_noBadge() = runTest {
+        val f = fixture(start = null)
+
+        assertTrue(f.pane.cards.value.all { it.missing == null })
+    }
+
+    @Test
+    fun badge_showsMissingTwoForAColumnTwoCallsAway() = runTest {
+        val f = fixture()
+
+        call(f, 3, 7)
+        assertEquals(null, f.card(1).missing)
+        call(f, 12)
+
+        assertEquals(2, f.card(1).missing)
+        assertEquals(null, f.card(2).missing)
+    }
+
+    @Test
+    fun badge_tracksTheClosestColumnAndShrinks() = runTest {
+        val f = fixture()
+        call(f, 3, 7, 12, 46, 47, 48)
+        assertEquals(2, f.card(1).missing)
+
+        call(f, 14)
+
+        assertEquals(1, f.card(1).missing)
+    }
+
+    @Test
+    fun badge_staysAfterManyUnrelatedCalls() = runTest {
+        val f = fixture(seed = listOf(board1))
+        call(f, 3, 7, 12)
+
+        call(f, 70, 69, 68, 67, 66, 55, 54, 53, 52, 51, 40, 41, 42, 43, 44, 45, 56, 57, 58)
+
+        assertEquals(2, f.card(1).missing)
+    }
+
+    @Test
+    fun badge_isGoneOnceThePatternWasAnnounced() = runTest {
+        val f = fixture()
+
+        call(f, 3, 7, 12, 14, 15)
+
+        assertEquals(listOf("COLUMN_B"), f.card(1).winningPatternIds)
+        assertEquals(null, f.card(1).missing)
+    }
+
+    @Test
+    fun winner_stillGetsABadgeForADifferentNearWinColumn() = runTest {
+        val f = fixture()
+
+        call(f, 3, 7, 12, 14, 15, 46, 47, 48)
+
+        assertTrue(f.card(1).isWinner)
+        assertEquals(2, f.card(1).missing)
+    }
+
+    @Test
+    fun badge_dismissedLetterIsFilteredAndReopenedAgain() = runTest {
+        val f = fixture()
+        call(f, 46, 47, 48)
+        assertEquals(2, f.card(1).missing)
+
+        f.session.toggleDismiss(BingoLetter.G)
+        runCurrent()
+        assertEquals(null, f.card(1).missing)
+
+        f.session.toggleDismiss(BingoLetter.G)
+        runCurrent()
+        assertEquals(2, f.card(1).missing)
+    }
+
+    @Test
+    fun badge_dismissingGKeepsTheBadgeOfAnotherColumn() = runTest {
+        val f = fixture()
+        call(f, 3, 7, 12, 46, 47, 48)
+
+        f.session.toggleDismiss(BingoLetter.G)
+        runCurrent()
+
+        assertEquals(2, f.card(1).missing)
+    }
+
+    @Test
+    fun badge_nonColumnaModeIsNotFilteredByDismissAndUsesItsThreshold() = runTest {
+        val f = fixture(seed = listOf(board1), start = GameMode.L)
+
+        call(f, 3, 7, 12, 14, 15, 20)
+
+        // L = column B + bottom row: 5 + 4 more cells, 6 satisfied, 3 missing.
+        assertEquals(3, f.card(1).missing)
+    }
+
+    @Test
+    fun restoredGame_badgeIsRebuilt() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.COLUMNA, listOf(3, 7, 12), emptySet()),
+        )
+
+        val f = fixture(repo = repo, start = null)
+
+        assertEquals(2, f.card(1).missing)
+    }
 }

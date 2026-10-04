@@ -251,3 +251,37 @@ Test count: 148 before, 193 after (45 new: 26 + 4 + 2 + 13). `./gradlew test --r
 - Replaced `Char::isDigit` in `CreateBoardDialog` by `sanitizeNumberInput` (ASCII only), matching Android's field.
 - Win announcement list in the Play pane is newest first and shows `#id identifier · pattern`; labels are hard-coded Spanish pending unit 9.
 - Manual check pending: type 47 and Enter, duplicate clears the field, right-click a row in COLUMNA, winner card highlight on the left, quit/relaunch keeps calls and dismissed rows.
+
+## Unit 7: win-prediction (DONE, tasks 7.1-7.4, Strict TDD)
+
+- [x] 7.1 RED: `BoardsPaneStateTest` +10 (badge), new `PlayPaneStateTest` (10)
+- [x] 7.2 GREEN: `BoardCardState.missing: Int?` in `BoardsPaneState.kt`; `presentation/PossibleWinners.kt` (`visiblePossibleWinners`), `presentation/PlayPaneState.kt` (`possibleWinners` flow)
+- [x] 7.3 UI: `NearWinPill` ("Faltan N") in the card header of `BoardsPane.kt`; `PossibleWinners` list with per-row "Cerrar" and right-click dismiss (COLUMNA rows) in `PlayPane.kt`; `AppContainer.playPaneState` wiring
+- [x] 7.4 Commit `feat(prediction): show possible winners and near-win badges`
+
+### TDD Cycle Evidence (unit 7)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 7.1/7.2 | `presentation/BoardsPaneStateTest.kt` | Unit with fakes | 13/13 (suite 193/193) | Written; compile failed: Unresolved reference 'missing' on BoardCardState | 23/23 passed | no game, missing=2 after 3 calls (not at 2), closest column and shrinking to 1, stays after 19 unrelated calls (no ceiling), announced B excluded, winner keeps a badge for a different column, dismissed G filtered and reopened, dismissing G keeps B badge, mode L threshold 3, restore rebuilds | One shared pure `visiblePossibleWinners` used by both panes |
+| 7.1/7.2 | `presentation/PlayPaneStateTest.kt` | Unit with fakes | N/A (new) | Written; compile failed: Unresolved reference 'PlayPaneState' | 10/10 passed | no game, ordering (board2 B 1; board1 B 2; board1 G 2), live update 2 then 1, announced dropped, dismiss filter and reopen, mode I letter null (missing 2), FULL threshold 10, restore, restored dismissed letter filtered, end clears | None needed |
+| 7.3 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, logic lives in tested state | compiles | n/a | n/a |
+
+Test count: 193 before, 213 after (20 new: 10 + 10). `./gradlew test --rerun-tasks`: BUILD SUCCESSFUL.
+
+### Work Unit Evidence (unit 7)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew desktopTest --tests '*PlayPaneState*' --tests '*BoardsPaneState*'` BUILD SUCCESSFUL (RED: compile errors first); full `./gradlew test --rerun-tasks` tests=213 failures=0 |
+| Runtime harness | Not run (no GUI driver; compile of the UI verified by the full build). Pill and list rendering NOT exercised visually |
+| Rollback boundary | `presentation/{PossibleWinners,PlayPaneState,BoardsPaneState}`, `ui/{BoardsPane,PlayPane,AppWindow}`, `di/AppContainer` (revert the unit 7 commit) |
+
+### Deviations / notes (unit 7)
+
+- Domain `predictPossibleWinners` reused unchanged; dismiss filter lives in presentation (`visiblePossibleWinners`), re-evaluated on every emission.
+- Badge shows the board's closest candidate (fewest missing). Announced wins are already excluded by the domain, so a winner is never badged for the same pattern, but it may be badged for another near-win pattern (kept; winner highlight stays the stronger signal).
+- `BoardCardState.missing` has a default of null so earlier call sites compile.
+- Pill text is "Faltan N" (hard-coded Spanish until unit 9); list rows read `#id identifier · LETTER · faltan N`.
+- Manual check pending: pill appears at 2 missing and updates live, right-click or Cerrar on a prediction row removes that letter, restart restores badges and list.
+

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -120,6 +121,7 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
                 )
+                card?.missing?.let { NearWinPill(it) }
                 TextButton(onClick = onDelete) { Text("Eliminar", fontSize = 12.sp) }
             }
             if (card != null && winner) {
@@ -151,6 +153,25 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                 }
             }
         }
+    }
+}
+
+/** Compact header pill with the number of cells still needed; the text carries the meaning, not only colour. */
+@Composable
+private fun NearWinPill(missing: Int) {
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            "Faltan $missing",
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+        )
     }
 }
 

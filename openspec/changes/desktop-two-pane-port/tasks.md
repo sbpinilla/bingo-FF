@@ -93,10 +93,10 @@ Chain strategy: size-exception
 
 ## Unit 7: win-prediction
 
-- [ ] 7.1 RED: extend `BoardsPaneStateTest.kt` (badge missing=2, announced excluded, dismissed G filtered) and `CT/presentation/PlayPaneStateTest.kt` (ordering, live update on call and restore).
-- [ ] 7.2 GREEN: `BoardCardState.missing` in `BoardsPaneState.kt`; `C/presentation/PlayPaneState.kt` possible winners.
-- [ ] 7.3 UI: missing-count pill in `BoardsPane.kt`; possible-winners list with per-row toggle and right-click dismiss in `PlayPane.kt`.
-- [ ] 7.4 Commit: `feat(prediction): show possible winners and near-win badges`
+- [x] 7.1 RED: extend `BoardsPaneStateTest.kt` (badge missing=2, announced excluded, dismissed G filtered) and `CT/presentation/PlayPaneStateTest.kt` (ordering, live update on call and restore).
+- [x] 7.2 GREEN: `BoardCardState.missing` in `BoardsPaneState.kt`; `C/presentation/PlayPaneState.kt` possible winners.
+- [x] 7.3 UI: missing-count pill in `BoardsPane.kt`; possible-winners list with per-row toggle and right-click dismiss in `PlayPane.kt`.
+- [x] 7.4 Commit: `feat(prediction): show possible winners and near-win badges`
 
 ## Unit 8: theme-preference
 

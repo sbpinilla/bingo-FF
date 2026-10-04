@@ -9,6 +9,7 @@ import com.sergiodev.bingo.domain.repository.BoardRepository
 import com.sergiodev.bingo.presentation.BoardsPaneState
 import com.sergiodev.bingo.presentation.BoardsState
 import com.sergiodev.bingo.presentation.GamePlayHolder
+import com.sergiodev.bingo.presentation.PlayPaneState
 import com.sergiodev.bingo.platform.AwtClipboard
 import com.sergiodev.bingo.platform.AwtFileDialogs
 import com.sergiodev.bingo.platform.JvmTextFiles
@@ -34,6 +35,7 @@ class AppContainer(dirs: AppDirs = AppDirs.default()) {
     val shellState = ShellState(gameSession, scope)
     val gamePlay = GamePlayHolder(gameSession, scope)
     val boardsPaneState = BoardsPaneState(boardRepository, gameSession, scope)
+    val playPaneState = PlayPaneState(boardRepository, gameSession, scope)
 
     /** Window that owns native file dialogs; set by the window once it exists. */
     var dialogOwner: Frame? = null

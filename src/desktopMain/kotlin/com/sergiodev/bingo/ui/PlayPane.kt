@@ -51,6 +51,8 @@ import com.sergiodev.bingo.presentation.GamePlayHolder
 import com.sergiodev.bingo.presentation.GamePlayInputError
 import com.sergiodev.bingo.presentation.GamePlayUiState
 import com.sergiodev.bingo.presentation.GameSessionHolder
+import com.sergiodev.bingo.presentation.PlayPaneState
+import com.sergiodev.bingo.domain.game.PredictionCandidate
 import com.sergiodev.bingo.presentation.sanitizeNumberInput
 
 /**
@@ -59,8 +61,9 @@ import com.sergiodev.bingo.presentation.sanitizeNumberInput
  * so it stays usable at about a third of the window width.
  */
 @Composable
-fun PlayPane(play: GamePlayHolder, session: GameSessionHolder, modifier: Modifier = Modifier) {
+fun PlayPane(play: GamePlayHolder, prediction: PlayPaneState, session: GameSessionHolder, modifier: Modifier = Modifier) {
     val state by play.state.collectAsState()
+    val possible by prediction.possibleWinners.collectAsState()
     var confirmingEnd by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
@@ -75,6 +78,7 @@ fun PlayPane(play: GamePlayHolder, session: GameSessionHolder, modifier: Modifie
         NumberEntry(state, play, focus)
         HorizontalDivider()
         CalledGrid(state, onToggle = play::onLetterDismissToggled)
+        PossibleWinners(possible, onToggle = play::onLetterDismissToggled)
         Button(onClick = { confirmingEnd = true }, modifier = Modifier.fillMaxWidth()) {
             Text("Terminar juego")
         }
@@ -168,6 +172,44 @@ private fun CalledGrid(state: GamePlayUiState, onToggle: (BingoLetter) -> Unit) 
                 }
             }
             if (index < BingoLetter.entries.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+        }
+    }
+}
+
+/**
+ * "Posibles ganadores": boards close to winning, fewest missing first. COLUMNA rows name their
+ * letter and can be dismissed (button or right-click), which removes every candidate of that letter.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PossibleWinners(candidates: List<PredictionCandidate>, onToggle: (BingoLetter) -> Unit) {
+    Text("Posibles ganadores", style = MaterialTheme.typography.titleMedium)
+    if (candidates.isEmpty()) {
+        Text("Ningún cartón cerca de ganar.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        return
+    }
+    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outline)) {
+        candidates.forEachIndexed { index, candidate ->
+            val letter = candidate.letter
+            val rowModifier = if (letter != null) {
+                Modifier.onClick(matcher = PointerMatcher.mouse(PointerButton.Secondary)) { onToggle(letter) }
+            } else {
+                Modifier
+            }
+            Row(
+                modifier = rowModifier.fillMaxWidth().padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "#${candidate.boardId} ${candidate.identifier}" + (letter?.let { " · ${it.name}" } ?: "") +
+                        " · faltan ${candidate.missing}",
+                    modifier = Modifier.weight(1f).padding(vertical = 8.dp),
+                )
+                if (letter != null) {
+                    TextButton(onClick = { onToggle(letter) }) { Text("Cerrar") }
+                }
+            }
+            if (index < candidates.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
         }
     }
 }

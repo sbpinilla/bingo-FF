@@ -87,7 +87,7 @@ private fun RightPane(container: AppContainer, modifier: Modifier) {
         if (loaded) {
             when (destination) {
                 RightPaneDestination.Setup -> SetupPane(container.gameSession)
-                RightPaneDestination.Play -> PlayPane(container.gamePlay, container.gameSession)
+                RightPaneDestination.Play -> PlayPane(container.gamePlay, container.playPaneState, container.gameSession)
             }
         }
     }
