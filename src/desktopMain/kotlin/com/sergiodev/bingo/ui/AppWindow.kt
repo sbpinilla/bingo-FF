@@ -1,11 +1,16 @@
 package com.sergiodev.bingo.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import com.sergiodev.bingo.di.AppContainer
 import com.sergiodev.bingo.presentation.CreateBoardHolder
@@ -46,16 +52,23 @@ fun FrameWindowScope.AppWindow(container: AppContainer) {
     )
 
     BingoTheme(themeMode) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                    BoardsPane(
-                        boardsState = container.boardsState,
-                        paneState = container.boardsPaneState,
-                        onAddBoard = { createHolder = container.newCreateBoardHolder() },
-                        modifier = Modifier.weight(ShellLayout.LEFT_WEIGHT).fillMaxHeight(),
-                    )
-                    RightPane(container, Modifier.weight(ShellLayout.RIGHT_WEIGHT).fillMaxHeight())
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surfaceDim) {
+            Column(modifier = Modifier.fillMaxSize().padding(PaneGap)) {
+                Row(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(PaneGap),
+                ) {
+                    PaneSurface(Modifier.weight(ShellLayout.LEFT_WEIGHT).fillMaxHeight()) {
+                        BoardsPane(
+                            boardsState = container.boardsState,
+                            paneState = container.boardsPaneState,
+                            onAddBoard = { createHolder = container.newCreateBoardHolder() },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    PaneSurface(Modifier.weight(ShellLayout.RIGHT_WEIGHT).fillMaxHeight()) {
+                        RightPane(container, Modifier.fillMaxSize())
+                    }
                 }
             }
             createHolder?.let { holder ->
@@ -84,6 +97,22 @@ fun FrameWindowScope.AppWindow(container: AppContainer) {
             )
         }
     }
+}
+
+private val PaneGap = 8.dp
+private val PaneShape = RoundedCornerShape(12.dp)
+
+/** Raised, rounded panel on the darker window background, in the style of IDE side panels. */
+@Composable
+private fun PaneSurface(modifier: Modifier, content: @Composable () -> Unit) {
+    Surface(
+        modifier = modifier,
+        shape = PaneShape,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        shadowElevation = 2.dp,
+        content = content,
+    )
 }
 
 /** Right pane: Setup or Play according to [rightPaneDestination]; blank until the stored game has been read. */
