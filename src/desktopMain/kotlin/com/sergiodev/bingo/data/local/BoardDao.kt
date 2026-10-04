@@ -39,13 +39,21 @@ interface BoardDao {
 
     /**
      * Atomically inserts the entries whose id and identifier are unused, in the DB and earlier
-     * in [boards]. Returns how many rows were inserted.
+     * among the entries accepted earlier in [boards]. A skipped entry reserves nothing, so a later
+     * entry may reuse its id or identifier. Returns how many rows were inserted.
      */
     @Transaction
     suspend fun importNew(boards: List<BoardEntity>): Int {
         val ids = getAllIds().toMutableSet()
         val identifiers = getAllIdentifiers().toMutableSet()
-        val fresh = boards.filter { ids.add(it.id) && identifiers.add(it.identifier) }
+        val fresh = boards.filter { board ->
+            val accepted = board.id !in ids && board.identifier !in identifiers
+            if (accepted) {
+                ids += board.id
+                identifiers += board.identifier
+            }
+            accepted
+        }
         if (fresh.isNotEmpty()) insertAll(fresh)
         return fresh.size
     }

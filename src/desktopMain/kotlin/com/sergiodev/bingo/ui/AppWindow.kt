@@ -86,7 +86,7 @@ fun FrameWindowScope.AppWindow(container: AppContainer) {
     }
 }
 
-/** Right pane: Setup or Play according to [ShellState]; blank until the stored game has been read. */
+/** Right pane: Setup or Play according to [rightPaneDestination]; blank until the stored game has been read. */
 @Composable
 private fun RightPane(container: AppContainer, modifier: Modifier) {
     val loaded by container.gameSession.loaded.collectAsState()

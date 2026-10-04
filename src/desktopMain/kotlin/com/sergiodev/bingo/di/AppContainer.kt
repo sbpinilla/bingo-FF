@@ -16,7 +16,6 @@ import com.sergiodev.bingo.platform.AwtFileDialogs
 import com.sergiodev.bingo.platform.JvmTextFiles
 import com.sergiodev.bingo.presentation.CreateBoardHolder
 import com.sergiodev.bingo.presentation.GameSessionHolder
-import com.sergiodev.bingo.presentation.ShellState
 import com.sergiodev.bingo.presentation.ThemeHolder
 import com.sergiodev.bingo.presentation.ImportExportHolder
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +34,6 @@ class AppContainer(dirs: AppDirs = AppDirs.default()) {
 
     val gameSession = GameSessionHolder(boardRepository, FileActiveGameRepository(dirs.activeGameFile), scope)
     val themeHolder = ThemeHolder(FileThemeRepository(dirs.themeFile), scope)
-    val shellState = ShellState(gameSession, scope)
     val gamePlay = GamePlayHolder(gameSession, scope)
     val boardsPaneState = BoardsPaneState(boardRepository, gameSession, scope)
     val playPaneState = PlayPaneState(boardRepository, gameSession, scope)

@@ -4,8 +4,16 @@ import com.sergiodev.bingo.resources.*
 import org.jetbrains.compose.resources.stringResource
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Surface
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +55,7 @@ import com.sergiodev.bingo.presentation.ShellLayout
 private val CardGap = ShellLayout.CARD_GAP.dp
 private const val BOARD_SIZE = 5
 private val WinnerBorderWidth = 3.dp
+private val DeleteButtonSize = 24.dp
 
 /** Left pane: all boards as compact 5x5 cards in an adaptive, vertically scrolling grid. */
 @Composable
@@ -123,19 +132,13 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
                 Text("#${board.id}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(
                     board.identifier,
-                    modifier = Modifier.weight(1f).padding(start = 8.dp),
+                    modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
                 )
                 card?.missing?.let { NearWinPill(it) }
-                Text(
-                    stringResource(Res.string.board_list_delete_button),
-                    modifier = Modifier.clickable(role = Role.Button, onClick = onDelete).padding(start = 8.dp, top = 2.dp, bottom = 2.dp),
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                )
+                DeleteBoardButton(onDelete)
             }
             if (card != null && winner) {
                 Text(
@@ -169,13 +172,48 @@ private fun BoardCardView(board: BoardCard, card: BoardCardState?, onDelete: () 
     }
 }
 
+/**
+ * Icon-sized delete affordance so the identifier keeps most of the header width. The glyph is
+ * decorative; the localized label is exposed as the accessible name and as a hover tooltip.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun DeleteBoardButton(onDelete: () -> Unit) {
+    val label = stringResource(Res.string.board_list_delete_button)
+    TooltipArea(
+        tooltip = {
+            Surface(shape = MaterialTheme.shapes.extraSmall, tonalElevation = 4.dp, shadowElevation = 4.dp) {
+                Text(label, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), fontSize = 12.sp)
+            }
+        },
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(start = 4.dp)
+                .size(DeleteButtonSize)
+                .clip(CircleShape)
+                .clickable(role = Role.Button, onClick = onDelete)
+                .semantics(mergeDescendants = true) { contentDescription = label },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                "✕",
+                modifier = Modifier.clearAndSetSemantics {},
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
 /** Compact header pill with the number of cells still needed; the text carries the meaning, not only colour. */
 @Composable
 private fun NearWinPill(missing: Int) {
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
-            .padding(horizontal = 8.dp, vertical = 2.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

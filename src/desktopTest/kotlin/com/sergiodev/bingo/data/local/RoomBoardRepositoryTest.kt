@@ -125,6 +125,25 @@ class RoomBoardRepositoryTest {
     }
 
     @Test
+    fun import_rejected_entry_does_not_reserve_its_id() = runTest {
+        val repo = repository()
+        repo.addBoard("X", numbers())
+
+        val result = repo.importBoards(
+            listOf(
+                BoardCard(50L, "X", numbers(1)), // new id, existing identifier: skipped
+                BoardCard(50L, "Y", numbers(2)), // same id, fresh identifier: must be imported
+            ),
+        )
+
+        assertEquals(1, result.imported)
+        assertEquals(1, result.skipped)
+        val boards = repo.observeBoards().first()
+        assertEquals(listOf(1L, 50L), boards.map { it.id })
+        assertEquals(listOf("X", "Y"), boards.map { it.identifier })
+    }
+
+    @Test
     fun import_preserves_original_ids() = runTest {
         val repo = repository()
 
