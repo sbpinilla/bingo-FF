@@ -28,8 +28,10 @@ import androidx.compose.ui.unit.sp
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.presentation.CreateBoardErrorReason
 import com.sergiodev.bingo.presentation.CreateBoardHolder
+import com.sergiodev.bingo.presentation.MAX_NUMBER_LENGTH
+import com.sergiodev.bingo.presentation.flatFieldIndex
+import com.sergiodev.bingo.presentation.sanitizeNumberInput
 
-private const val MAX_NUMBER_LENGTH = 2
 private const val FIELD_COUNT = 24
 private const val FREE_ROW_INDEX = 2
 private val FieldWidth = 64.dp
@@ -73,7 +75,7 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
                             OutlinedTextField(
                                 value = value,
                                 onValueChange = { raw ->
-                                    val digits = raw.filter(Char::isDigit).take(MAX_NUMBER_LENGTH)
+                                    val digits = sanitizeNumberInput(raw)
                                     holder.onNumberChange(letter, index, digits)
                                     if (digits.length == MAX_NUMBER_LENGTH && flat < FIELD_COUNT - 1) {
                                         focusRequesters[flat + 1].requestFocus()
@@ -93,10 +95,6 @@ fun CreateBoardDialog(holder: CreateBoardHolder, onClose: () -> Unit) {
         dismissButton = { TextButton(onClick = onClose) { Text("Cancelar") } },
     )
 }
-
-/** Flat position (0..23) of a field in reading order B, I, N (4), G, O. */
-private fun flatFieldIndex(numbers: Map<BingoLetter, List<String>>, letter: BingoLetter, index: Int): Int =
-    BingoLetter.entries.take(letter.ordinal).sumOf { numbers.getValue(it).size } + index
 
 private fun CreateBoardErrorReason.message(): String = when (this) {
     CreateBoardErrorReason.BlankIdentifier -> "El identificador no puede estar vacío"

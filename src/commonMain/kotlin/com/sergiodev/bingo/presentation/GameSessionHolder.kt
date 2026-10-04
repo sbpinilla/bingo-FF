@@ -2,6 +2,7 @@ package com.sergiodev.bingo.presentation
 
 import com.sergiodev.bingo.domain.game.GameSession
 import com.sergiodev.bingo.domain.game.replay
+import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GameMode
 import com.sergiodev.bingo.domain.repository.ActiveGame
@@ -75,9 +76,7 @@ class GameSessionHolder(
     /** Starts a game with [mode]. Ignored when a game is already active or no board exists. */
     fun start(mode: GameMode) {
         if (_active.value != null || boardList.value.isEmpty()) return
-        val game = ActiveGame(mode, emptyList(), emptySet())
-        _active.value = game
-        scope.launch { persist { repository.save(game) } }
+        update(ActiveGame(mode, emptyList(), emptySet()))
     }
 
     /** Ends the active game and clears the stored one. Boards are untouched. */
@@ -85,6 +84,34 @@ class GameSessionHolder(
         if (_active.value == null) return
         _active.value = null
         scope.launch { persist { repository.clear() } }
+    }
+
+    /**
+     * Appends [number] to the active game's calls and persists it. Returns `false` (and changes
+     * nothing) when no game is active or the number was already called. Range validation is the
+     * caller's job ([GamePlayHolder]).
+     */
+    fun call(number: Int): Boolean {
+        val game = _active.value ?: return false
+        if (number in game.calledNumbers) return false
+        update(game.copy(calledNumbers = game.calledNumbers + number))
+        return true
+    }
+
+    /**
+     * Toggles [letter] as dismissed (a COLUMNA column already won outside the app) and persists the
+     * set. Ignored outside COLUMNA. Dismissal only filters predictions; win detection ignores it.
+     */
+    fun toggleDismiss(letter: BingoLetter) {
+        val game = _active.value ?: return
+        if (game.mode != GameMode.COLUMNA) return
+        val dismissed = if (letter in game.dismissedLetters) game.dismissedLetters - letter else game.dismissedLetters + letter
+        update(game.copy(dismissedLetters = dismissed))
+    }
+
+    private fun update(game: ActiveGame) {
+        _active.value = game
+        scope.launch { persist { repository.save(game) } }
     }
 
     /** Serialises repository access; a storage failure must not crash the app, it only loses persistence. */

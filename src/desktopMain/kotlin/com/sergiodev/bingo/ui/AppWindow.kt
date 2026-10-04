@@ -43,6 +43,7 @@ fun AppWindow(container: AppContainer) {
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     BoardsPane(
                         boardsState = container.boardsState,
+                        paneState = container.boardsPaneState,
                         onAddBoard = { createHolder = container.newCreateBoardHolder() },
                         modifier = Modifier.weight(2f).fillMaxHeight(),
                     )
@@ -86,7 +87,7 @@ private fun RightPane(container: AppContainer, modifier: Modifier) {
         if (loaded) {
             when (destination) {
                 RightPaneDestination.Setup -> SetupPane(container.gameSession)
-                RightPaneDestination.Play -> PlayPane(container.gameSession)
+                RightPaneDestination.Play -> PlayPane(container.gamePlay, container.gameSession)
             }
         }
     }

@@ -84,12 +84,12 @@ Chain strategy: size-exception
 
 ## Unit 6: game-play
 
-- [ ] 6.1 RED: `CT/presentation/GamePlayHolderTest.kt` (derived letter 47 to G, InvalidNumber 80, LetterMismatch, DuplicateCall(47) clears input, accept appends and persists, grouping 47,3,52, announce once, restart replay, dismissed letter still wins, toggle twice).
-- [ ] 6.2 GREEN: `C/presentation/GamePlayHolder.kt` (ported from Android `GamePlayViewModel`, read-only), `toggleDismiss` in `GameSessionHolder`.
-- [ ] 6.3 RED then GREEN: port `BingoNumberFieldTest` / `CreateBoardFocusOrderTest` if Compose-free, else drop and note.
-- [ ] 6.4 RED then GREEN: `CT/presentation/BoardsPaneStateTest.kt` (marks = called ∩ numbers, winner pattern ids, no game means no marks); `C/presentation/BoardsPaneState.kt`.
-- [ ] 6.5 UI: `D/ui/PlayPane.kt` (input, per-letter grid, announcements, end game), marked cells and winner highlight in `BoardsPane.kt`.
-- [ ] 6.6 Commit: `feat(play): add number calling, live board marks and win announcements`
+- [x] 6.1 RED: `CT/presentation/GamePlayHolderTest.kt` (derived letter 47 to G, InvalidNumber 80, LetterMismatch, DuplicateCall(47) clears input, accept appends and persists, grouping 47,3,52, announce once, restart replay, dismissed letter still wins, toggle twice).
+- [x] 6.2 GREEN: `C/presentation/GamePlayHolder.kt` (ported from Android `GamePlayViewModel`, read-only), `toggleDismiss` in `GameSessionHolder`.
+- [x] 6.3 RED then GREEN: port `BingoNumberFieldTest` / `CreateBoardFocusOrderTest` if Compose-free, else drop and note.
+- [x] 6.4 RED then GREEN: `CT/presentation/BoardsPaneStateTest.kt` (marks = called ∩ numbers, winner pattern ids, no game means no marks); `C/presentation/BoardsPaneState.kt`.
+- [x] 6.5 UI: `D/ui/PlayPane.kt` (input, per-letter grid, announcements, end game), marked cells and winner highlight in `BoardsPane.kt`.
+- [x] 6.6 Commit: `feat(play): add number calling, live board marks and win announcements`
 
 ## Unit 7: win-prediction
 

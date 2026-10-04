@@ -210,3 +210,44 @@ Test count: 112 before, 148 after (36 new: 15 stores + 17 holder + 3 shell + 1 A
 - The real-file restart test uses real dispatchers (the store does IO on `Dispatchers.IO`), found when the first version with `runCurrent` failed; the failure was in the test harness, not production code.
 - `PlayPane` is a placeholder (mode, call count, confirmed End game) until unit 6; it makes the Setup to Play to Setup loop usable now. Mode chip labels match Android (Columna, O, L, I, Completo), selected chip uses Android's Success green `#2E7D32`. UI strings hard-coded Spanish pending unit 9.
 - Manual check pending: click Jugar, quit, relaunch to land in Play; Terminar juego returns to Setup.
+
+## Unit 6: game-play (DONE, tasks 6.1-6.6, Strict TDD)
+
+- [x] 6.1 RED: `commonTest/presentation/GamePlayHolderTest` (26), `NumberInputTest` (4)
+- [x] 6.2 GREEN: `presentation/GamePlayHolder` (+ `GamePlayUiState`, `GamePlayInputError`), `GameSessionHolder.call(n): Boolean` and `toggleDismiss(letter)`, `presentation/NumberInput.kt` (`sanitizeNumberInput`)
+- [x] 6.3 RED then GREEN: ported `BingoNumberFieldTest` (as `NumberInputTest`, sanitizer moved to commonMain) and `CreateBoardFocusOrderTest` (2, `flatFieldIndex` moved to commonMain `presentation/FocusOrder.kt`); `CreateBoardDialog` now uses both
+- [x] 6.4 RED then GREEN: `commonTest/presentation/BoardsPaneStateTest` (13), `presentation/BoardsPaneState` (+ `@Immutable BoardCardState`, `CellState`)
+- [x] 6.5 UI: `ui/PlayPane` (real pane: input + letter chips + Enter submit, announcements, per-letter called grid with per-row toggle and right-click dismiss in COLUMNA, confirmed end game), `ui/PatternLabels`, marked cells and winner highlight in `ui/BoardsPane`, wiring in `AppContainer`/`AppWindow`
+- [x] 6.6 Commit `feat(play): add number calling, live board marks and win announcements`
+
+### TDD Cycle Evidence (unit 6)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 6.1/6.2 | `presentation/GamePlayHolderTest.kt` | Unit with fakes | 148/148 | Written; compile failed: Unresolved reference 'GamePlayHolder' | 26/26 passed (full suite 178/178) | derived letter (47 G, re-derive 4/42/80, override kept), accept vs override-match, InvalidNumber (80, blank, 0, abc, 76), LetterMismatch, DuplicateCall(47) clears input, error cleared on edit and on letter select, no game ignored, end game resets entry, grouping 47,3,52 and five empty rows, announce once with sequentialNumber = board id, second board without re-announcing first, restart replay, toggle twice persisted, dismissed survives restart, dismissed still wins, toggle ignored outside COLUMNA and without a game, `call` true/false and ordering persisted | `start`, `call` and `toggleDismiss` in `GameSessionHolder` share one private `update()` (set state, then save) |
+| 6.3 | `presentation/NumberInputTest.kt` | Unit | 148/148 | Written with 6.1; compile failed: Unresolved reference 'sanitizeNumberInput' | 4/4 passed | 8 Android table cases, paste truncation, idempotence, non-ASCII digits rejected | None needed |
+| 6.3 | `presentation/CreateBoardFocusOrderTest.kt` | Unit | 178/178 | Written together with the extraction of `flatFieldIndex`; the function was moved from the dialog, so the RED was by construction (compile error before `FocusOrder.kt` was added was not separately executed) | 2/2 passed | all 24 fields + 3 boundaries | `CreateBoardDialog` uses the shared function |
+| 6.4 | `presentation/BoardsPaneStateTest.kt` | Unit with fakes | 182/182 | Written; compile failed: Unresolved reference 'BoardsPaneState' | 13/13 passed | no game, row-major layout with FREE, marks = called and on board, FREE not a mark, call on no board, winner ids per board, winner persists, dismissed letter still wins, end clears, restore rebuilds, add/delete boards, mode L, unaffected cards equal | None needed |
+| 6.5 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, logic lives in tested holders | compiles; `./gradlew run` 50s, no exception | n/a | n/a |
+
+Test count: 148 before, 193 after (45 new: 26 + 4 + 2 + 13). `./gradlew test --rerun-tasks`: BUILD SUCCESSFUL.
+
+### Work Unit Evidence (unit 6)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew test --rerun-tasks` (JAVA_HOME 17): BUILD SUCCESSFUL; tests=193 skipped=0 failures=0 |
+| Runtime harness | `./gradlew run` 50s then killed: window process started, no exception in the log. Typing, right-click dismiss, live marks and winner highlight NOT exercised (no GUI driver). Created `~/Library/Application Support/BingoFF` removed (it did not exist before) |
+| Rollback boundary | `presentation/{GamePlayHolder,BoardsPaneState,NumberInput,FocusOrder}`, `GameSessionHolder.call/toggleDismiss`, `ui/{PlayPane,PatternLabels,BoardsPane,CreateBoardDialog}`, `AppContainer`/`AppWindow` wiring, `compose.runtime` in commonMain deps (revert the unit 6 commit) |
+
+### Deviations / notes (unit 6)
+
+- `commonMain` now depends on `compose.runtime` solely for `@Immutable` (design asks for `@Immutable BoardCardState`).
+- Error reasons are `GamePlayInputError` (InvalidNumber, LetterMismatch, DuplicateCall(n)), same shape as Android's `GamePlayInputErrorReason`.
+- `GameSessionHolder.call` returns `Boolean` (false on duplicate/no game); range validation stays in `GamePlayHolder`. `toggleDismiss` is a no-op outside COLUMNA and without a game. Dismissed letters only live in the persisted `ActiveGame`; predictions that use them arrive in unit 7.
+- `BoardsPaneState(boards, session, scope)` takes `BoardRepository` and `GameSessionHolder`, combines `observeBoards()` with `session.active` and replays itself (consistent snapshot); cells are row-major, FREE is `number = null, marked = false`. `winningPatternIds` accumulate for the whole game (a winner stays highlighted). No `missing` badge yet (unit 7).
+- `GamePlayHolder` clears the half-typed entry when the game ends.
+- Android "possible winners" and swipe-to-dismiss confirmation dialog are not ported here: dismissal is a per-row button plus right-click without confirmation (reversible), prediction list is unit 7.
+- Replaced `Char::isDigit` in `CreateBoardDialog` by `sanitizeNumberInput` (ASCII only), matching Android's field.
+- Win announcement list in the Play pane is newest first and shows `#id identifier · pattern`; labels are hard-coded Spanish pending unit 9.
+- Manual check pending: type 47 and Enter, duplicate clears the field, right-click a row in COLUMNA, winner card highlight on the left, quit/relaunch keeps calls and dismissed rows.

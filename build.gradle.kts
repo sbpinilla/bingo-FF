@@ -18,6 +18,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(compose.runtime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
         }
