@@ -172,3 +172,41 @@ Test count: 83 before, 112 after (29 new: 10 codec + 2 fixture + 17 holder). `./
 - The add-board dialog misalignment reported by the user is deferred; the import dialog reuses the same AlertDialog title/body/buttons layout.
 - UI strings hard-coded Spanish pending unit 9.
 - `~/Library/Application Support/BingoFF` was removed after the smoke run.
+
+## Unit 5: game-session (DONE, tasks 5.1-5.5, Strict TDD)
+
+- [x] 5.1 RED: `desktopTest/data/file/FileStoresTest` (15), `commonTest/presentation/GameSessionHolderTest` (17, includes the rewritten Android `GameSetupViewModelTest` cases and restart tests), `InMemoryActiveGameRepository` fake
+- [x] 5.2 GREEN: `data/file/{JsonFileStore,FileActiveGameRepository}` (desktopMain), `presentation/GameSessionHolder` (+ `GameSetupUiState`), `presentation/ShellState` (+ `RightPaneDestination`), `AppDirs.activeGameFile`
+- [x] 5.3 RED then GREEN: `commonTest/presentation/ShellStateTest` (3): clean launch Setup, restored Play, start then end
+- [x] 5.4 UI: `ui/{SetupPane,EndGameDialog,PlayPane}`; `AppWindow` right pane switches on `RightPaneDestination` (blank until the stored game is read); `AppContainer` wires `gameSession` and `shellState`
+- [x] 5.5 Commit `feat(session): add game setup and persisted single active game`
+
+### TDD Cycle Evidence (unit 5)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 5.1/5.2 | `data/file/FileStoresTest.kt` | Integration (real temp-dir files) | 112/112 (unit 4 baseline) | Written; compile failed: Unresolved reference 'JsonFileStore' / 'FileActiveGameRepository' / 'GameSessionHolder' | 15/15 passed (after one test-harness fix, see notes) | store: save/load, missing, corrupt, wrong shape, overwrite with no temp left, nested dirs, clear; repo: round trip with order and dismissed letters, `"version": 1` on disk, corrupt, unknown version, unknown mode, clear, overwrite; real-file restart through the holder | Return types of `save`/`clear` pinned to `Unit` |
+| 5.1/5.2 | `presentation/GameSessionHolderTest.kt` | Unit with fakes | 112/112 | Written; compile failed: Unresolved reference 'GameSessionHolder' / 'setup' / 'selectMode' / 'loaded' | 17/17 passed | zero boards vs one board (blocked, allowed, blocked again after delete), 5 modes, COLUMNA default, start (L, CARTON_COMPLETO), start ignored with no boards and while active, end clears store and keeps boards, new game after end, restart restores (same store), calls order and dismissed letters restored, replay rebuilds winners and announced, no winners case, ended game not restored | None needed |
+| 5.3 | `presentation/ShellStateTest.kt` | Unit with fakes | 112/112 | Written; compile failed: Unresolved reference 'ShellState' / 'RightPaneDestination' | 3/3 passed | clean launch Setup vs restored Play vs start-then-end transitions | None needed |
+| 5.2 | `data/file/AppDirsTest.kt` (+1) | Unit | 147/147 | Written after the property was added (trivial accessor), so it passed on first run | 148/148 | Single | n/a |
+| 5.4 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, logic lives in the tested holders | compiles; `./gradlew run` ~50s, no exception | n/a | n/a |
+
+Test count: 112 before, 148 after (36 new: 15 stores + 17 holder + 3 shell + 1 AppDirs). `./gradlew test --rerun-tasks` ran twice, BUILD SUCCESSFUL both times (no flakiness).
+
+### Work Unit Evidence (unit 5)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew test --rerun-tasks` (JAVA_HOME 17): BUILD SUCCESSFUL x2; tests=148 skipped=0 failures=0 |
+| Runtime harness | `./gradlew run` ~50s then SIGTERM: window process started, Room DB created, no exception. Start, quit and relaunch through the window NOT exercised (no GUI driver); persistence is covered by the real-file restart test. The created `~/Library/Application Support/BingoFF` was removed afterwards (it did not exist before) |
+| Rollback boundary | `data/file/{JsonFileStore,FileActiveGameRepository}`, `AppDirs.activeGameFile`, `presentation/{GameSessionHolder,ShellState}`, `ui/{SetupPane,EndGameDialog,PlayPane}`, the right-pane edits in `AppWindow`/`AppContainer` (revert the unit 5 commit) |
+
+### Deviations / notes (unit 5)
+
+- `GameSessionHolder` takes a `BoardRepository` (design says `boards`) and exposes `active`, `loaded`, `setup` (the Android `GameSetupUiState`, incl. `canStart`), `session` (replayed `GameSession` with winners and announced), `selectMode`, `start(mode)`, `end()`. `call`/`toggleDismiss` are deferred to unit 6 (6.2). `start` is a silent no-op when a game is active or no board exists.
+- Added `loaded` (not in design) so the right pane stays blank until the stored game is read, avoiding a Setup flash before a restored game opens Play. `ShellState(session, scope)` derives the destination from `session.active`.
+- Repository calls run through a `Mutex` in call order; storage exceptions are swallowed (the game keeps working in memory, persistence is lost) so a bad disk never crashes the app. A `start` issued before the initial load finishes wins over the stored game.
+- `ActiveGameDto` stores `version`, `mode`, `calledNumbers`, `dismissedLetters` (sorted); `JsonFileStore` is generic and version-agnostic, the repository rejects `version != 1`. Unknown mode names fail decoding and therefore count as no game. `JsonFileStore` uses a sibling `.tmp` plus `ATOMIC_MOVE` (falls back to a plain replace move).
+- The real-file restart test uses real dispatchers (the store does IO on `Dispatchers.IO`), found when the first version with `runCurrent` failed; the failure was in the test harness, not production code.
+- `PlayPane` is a placeholder (mode, call count, confirmed End game) until unit 6; it makes the Setup to Play to Setup loop usable now. Mode chip labels match Android (Columna, O, L, I, Completo), selected chip uses Android's Success green `#2E7D32`. UI strings hard-coded Spanish pending unit 9.
+- Manual check pending: click Jugar, quit, relaunch to land in Play; Terminar juego returns to Setup.

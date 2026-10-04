@@ -1,6 +1,7 @@
 package com.sergiodev.bingo.di
 
 import com.sergiodev.bingo.data.file.AppDirs
+import com.sergiodev.bingo.data.file.FileActiveGameRepository
 import com.sergiodev.bingo.data.local.BingoDatabase
 import com.sergiodev.bingo.data.local.RoomBoardRepository
 import com.sergiodev.bingo.data.local.buildBingoDatabase
@@ -10,6 +11,8 @@ import com.sergiodev.bingo.platform.AwtClipboard
 import com.sergiodev.bingo.platform.AwtFileDialogs
 import com.sergiodev.bingo.platform.JvmTextFiles
 import com.sergiodev.bingo.presentation.CreateBoardHolder
+import com.sergiodev.bingo.presentation.GameSessionHolder
+import com.sergiodev.bingo.presentation.ShellState
 import com.sergiodev.bingo.presentation.ImportExportHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +27,9 @@ class AppContainer(dirs: AppDirs = AppDirs.default()) {
 
     val boardRepository: BoardRepository = RoomBoardRepository(database)
     val boardsState = BoardsState(boardRepository, scope)
+
+    val gameSession = GameSessionHolder(boardRepository, FileActiveGameRepository(dirs.activeGameFile), scope)
+    val shellState = ShellState(gameSession, scope)
 
     /** Window that owns native file dialogs; set by the window once it exists. */
     var dialogOwner: Frame? = null

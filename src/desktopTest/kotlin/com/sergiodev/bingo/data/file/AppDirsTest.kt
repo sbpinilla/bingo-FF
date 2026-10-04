@@ -42,4 +42,11 @@ class AppDirsTest {
 
         assertEquals(Path.of("/tmp/x/bingoff.db"), dirs.databaseFile)
     }
+
+    @Test
+    fun active_game_file_lives_under_the_root() {
+        val dirs = AppDirs(Path.of("/tmp/x"))
+
+        assertEquals(Path.of("/tmp/x/active-game.json"), dirs.activeGameFile)
+    }
 }

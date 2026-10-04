@@ -76,11 +76,11 @@ Chain strategy: size-exception
 
 ## Unit 5: game-session
 
-- [ ] 5.1 RED: `DT/data/file/FileStoresTest.kt` (save/load, corrupt falls back, atomic overwrite, `version: 1`); `GameSessionHolderTest.kt` (start, end clears, restart restores same repo, start disabled with no boards).
-- [ ] 5.2 GREEN: `D/data/file/{JsonFileStore,FileActiveGameRepository}.kt`, `C/presentation/GameSessionHolder.kt`, `ShellState.kt` (`RightPaneDestination` derived from `session.active`).
-- [ ] 5.3 RED then GREEN: `CT/presentation/ShellStateTest.kt` (restored opens Play, end returns Setup).
-- [ ] 5.4 UI: `D/ui/{SetupPane,EndGameDialog}.kt` mode chips (default COLUMNA), start button, empty hint.
-- [ ] 5.5 Commit: `feat(session): add game setup and persisted single active game`
+- [x] 5.1 RED: `DT/data/file/FileStoresTest.kt` (save/load, corrupt falls back, atomic overwrite, `version: 1`); `GameSessionHolderTest.kt` (start, end clears, restart restores same repo, start disabled with no boards).
+- [x] 5.2 GREEN: `D/data/file/{JsonFileStore,FileActiveGameRepository}.kt`, `C/presentation/GameSessionHolder.kt`, `ShellState.kt` (`RightPaneDestination` derived from `session.active`).
+- [x] 5.3 RED then GREEN: `CT/presentation/ShellStateTest.kt` (restored opens Play, end returns Setup).
+- [x] 5.4 UI: `D/ui/{SetupPane,EndGameDialog}.kt` mode chips (default COLUMNA), start button, empty hint.
+- [x] 5.5 Commit: `feat(session): add game setup and persisted single active game`
 
 ## Unit 6: game-play
 
