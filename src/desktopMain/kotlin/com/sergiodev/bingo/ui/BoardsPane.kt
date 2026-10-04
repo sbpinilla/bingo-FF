@@ -6,6 +6,8 @@ import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
@@ -22,12 +24,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -60,6 +64,7 @@ private const val BOARD_SIZE = 5
 private val WinnerBorderWidth = 3.dp
 private val DeleteButtonSize = 24.dp
 private val StruckColumnWidth = 3.dp
+private val ScrollbarGutter = 12.dp
 
 /** Left pane: all boards as compact 5x5 cards in an adaptive, vertically scrolling grid. */
 @Composable
@@ -90,15 +95,23 @@ fun BoardsPane(
                 }
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(ShellLayout.MIN_CARD_WIDTH.dp),
-                horizontalArrangement = Arrangement.spacedBy(CardGap),
-                verticalArrangement = Arrangement.spacedBy(CardGap),
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                items(state.boards, key = { it.id }, contentType = { "board" }) { board ->
-                    BoardCardView(board, cardsById[board.id], onDelete = { boardsState.onDeleteRequested(board) })
+            val gridState = rememberLazyGridState()
+            Box(Modifier.fillMaxSize()) {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(ShellLayout.MIN_CARD_WIDTH.dp),
+                    state = gridState,
+                    horizontalArrangement = Arrangement.spacedBy(CardGap),
+                    verticalArrangement = Arrangement.spacedBy(CardGap),
+                    modifier = Modifier.fillMaxSize().padding(end = ScrollbarGutter),
+                ) {
+                    items(state.boards, key = { it.id }, contentType = { "board" }) { board ->
+                        BoardCardView(board, cardsById[board.id], onDelete = { boardsState.onDeleteRequested(board) })
+                    }
                 }
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(gridState),
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                )
             }
         }
     }
