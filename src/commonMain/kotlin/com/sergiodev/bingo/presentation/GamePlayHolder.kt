@@ -93,7 +93,7 @@ class GamePlayHolder(
         pending.update { it.copy(selectedLetter = letter, overridden = true, error = null) }
     }
 
-    /** Toggles a COLUMNA letter as dismissed. Only filters predictions, never win detection. */
+    /** Toggles a COLUMNA letter as dismissed: filters its predictions and voids its column win. */
     fun onLetterDismissToggled(letter: BingoLetter) {
         session.toggleDismiss(letter)
     }

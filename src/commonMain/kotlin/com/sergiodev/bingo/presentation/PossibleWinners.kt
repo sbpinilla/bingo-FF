@@ -9,7 +9,9 @@ import com.sergiodev.bingo.domain.repository.ActiveGame
 /**
  * Near-win candidates shown to the user: the domain prediction (announced wins already excluded)
  * minus COLUMNA candidates whose letter is dismissed. Non-COLUMNA candidates have no letter and are
- * never filtered. A pure function of its inputs, so every call re-evaluates from scratch.
+ * never filtered. A voided (dismissed) column is absent from [GameSession.announced], so this letter
+ * filter is what keeps it out of the list. A pure function of its inputs, so every call re-evaluates
+ * from scratch.
  */
 fun visiblePossibleWinners(
     game: ActiveGame?,

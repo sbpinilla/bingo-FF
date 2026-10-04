@@ -1,7 +1,6 @@
 package com.sergiodev.bingo.presentation
 
 import com.sergiodev.bingo.domain.game.PredictionCandidate
-import com.sergiodev.bingo.domain.game.replay
 import com.sergiodev.bingo.domain.repository.BoardRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +19,6 @@ class PlayPaneState(
 ) {
     val possibleWinners: StateFlow<List<PredictionCandidate>> =
         combine(boards.observeBoards(), session.active) { list, game ->
-            visiblePossibleWinners(game, game?.let { replay(it.mode, it.calledNumbers, list) }, list)
+            visiblePossibleWinners(game, game?.toSession(list), list)
         }.stateIn(scope, SharingStarted.Eagerly, emptyList())
 }

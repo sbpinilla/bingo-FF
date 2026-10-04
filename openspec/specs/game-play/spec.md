@@ -59,7 +59,7 @@ The pane MUST show called numbers grouped per letter, in call order, plus the to
 
 ### Requirement: Win detection and announcements
 
-For every board and pattern of the active mode, a win MUST be announced exactly once when all pattern cells are satisfied (evaluated per board, never a global tally). Announcements show board identifier and pattern. Announced pairs are rebuilt by replaying the called numbers in order, so they survive restarts. Dismissed COLUMNA letters MUST NOT affect win detection.
+For every board and pattern of the active mode, a win MUST be announced exactly once when all pattern cells are satisfied (evaluated per board, never a global tally). Announcements show board identifier and pattern. Announced pairs are rebuilt by replaying the called numbers in order, so they survive restarts. In COLUMNA, a dismissed (closed) letter X voids its column: while X is dismissed, COLUMN_X MUST NOT count as a win for any board, so it is neither announced nor highlighted, and wins of other columns are unaffected and keep their call order. Reopening X MUST restore those wins, derived from the called numbers, as if X had never been dismissed. Other modes ignore dismissed letters.
 
 #### Scenario: New win
 - GIVEN a board needs only B7 for column B
@@ -76,14 +76,39 @@ For every board and pattern of the active mode, a win MUST be announced exactly 
 - WHEN the app restarts
 - THEN the same winners are rebuilt from the call order
 
-#### Scenario: Dismissed letter still wins
+#### Scenario: Dismissing a won column voids it
+- GIVEN a COLUMNA board completed column B and the win was announced
+- WHEN the user dismisses letter B
+- THEN the COLUMN_B announcement disappears and the board is no longer highlighted as a winner
+
+#### Scenario: Completing a dismissed column announces nothing
 - GIVEN letter B dismissed in COLUMNA
 - WHEN a board completes column B
-- THEN a win is still announced
+- THEN no win is announced and the board is not highlighted
+
+#### Scenario: Another column still wins
+- GIVEN a COLUMNA board completed columns B and G
+- WHEN the user dismisses letter B
+- THEN the board stays a winner via COLUMN_G only and the COLUMN_G announcement keeps its place
+
+#### Scenario: Reopening restores the win
+- GIVEN letter B dismissed and a board with column B complete
+- WHEN the user reopens letter B
+- THEN the COLUMN_B win, its highlight and its announcement reappear in call order
+
+#### Scenario: Restart keeps the void
+- GIVEN a COLUMNA game with column B complete on a board and letter B dismissed
+- WHEN the app restarts
+- THEN the replayed winners do not include COLUMN_B
+
+#### Scenario: Other modes ignore dismissed letters
+- GIVEN an O, L, I or CARTON_COMPLETO game
+- WHEN a board completes the mode's pattern
+- THEN the win is announced regardless of any stored dismissed letters
 
 ### Requirement: Dismiss COLUMNA letter
 
-In COLUMNA mode the user MUST be able to toggle a letter as dismissed via a per-row toggle or right-click. The set persists.
+In COLUMNA mode the user MUST be able to toggle a letter as dismissed (closed) via a per-row toggle or right-click. The set persists. A dismissed letter hides its predictions and voids its column win (see Win detection and announcements).
 
 #### Scenario: Toggle
 - GIVEN letter G is not dismissed

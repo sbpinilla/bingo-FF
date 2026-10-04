@@ -29,6 +29,14 @@ data class GameSetupUiState(
 }
 
 /**
+ * The effective session of [this] game over [boards]: winners and announced wins replayed from the
+ * called numbers, minus the COLUMNA column wins whose letter is dismissed. The single derivation
+ * shared by the Play pane announcements, the left-pane winner highlight and the predictions.
+ */
+fun ActiveGame.toSession(boards: List<BoardCard>): GameSession =
+    replay(mode, calledNumbers, boards, dismissedLetters)
+
+/**
  * Owns the single active game. The persisted [ActiveGame] is restored on construction;
  * every mutation is written through [repository] (in call order). Winners and announcements
  * are never stored: [session] rebuilds them by replaying the called numbers.
@@ -56,7 +64,7 @@ class GameSessionHolder(
 
     /** The active game with winners and announced wins rebuilt by replaying its calls. */
     val session: StateFlow<GameSession?> = combine(_active, boardList) { game, list ->
-        game?.let { replay(it.mode, it.calledNumbers, list) }
+        game?.toSession(list)
     }.stateIn(scope, SharingStarted.Eagerly, null)
 
     init {
@@ -99,8 +107,9 @@ class GameSessionHolder(
     }
 
     /**
-     * Toggles [letter] as dismissed (a COLUMNA column already won outside the app) and persists the
-     * set. Ignored outside COLUMNA. Dismissal only filters predictions; win detection ignores it.
+     * Toggles [letter] as dismissed (a closed COLUMNA column) and persists the set. Ignored outside
+     * COLUMNA. A dismissed letter filters predictions and voids its COLUMN_X win (see [toSession]);
+     * reopening it restores the win, since the session is always re-derived from the calls.
      */
     fun toggleDismiss(letter: BingoLetter) {
         val game = _active.value ?: return

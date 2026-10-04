@@ -6,7 +6,8 @@ import com.sergiodev.bingo.domain.model.GameMode
 /**
  * The persisted state of the single active game. Winners and announcements are
  * never stored: they are rebuilt by replaying [calledNumbers] under [mode].
- * [dismissedLetters] holds the columns the user hid from the possible winners list.
+ * [dismissedLetters] holds the COLUMNA columns the user closed: they are hidden from the possible
+ * winners list and their column wins are voided on replay.
  */
 data class ActiveGame(
     val mode: GameMode,

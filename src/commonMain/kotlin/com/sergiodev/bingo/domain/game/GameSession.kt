@@ -3,10 +3,10 @@ package com.sergiodev.bingo.domain.game
 import com.sergiodev.bingo.domain.model.GameMode
 
 /**
- * Immutable session state for one active game. Only [mode] and
- * [calledNumbers] are persisted (by the active-game repository); [announced] and
- * [winners] are rebuilt deterministically by replaying [calledNumbers] in
- * order through [BingoWinChecker.newWins].
+ * Immutable session state for one active game. [announced] and
+ * [winners] are never persisted: [replay] rebuilds them deterministically from
+ * the called numbers (and, in COLUMNA, the dismissed letters that void their
+ * column wins).
  */
 data class GameSession(
     val mode: GameMode,

@@ -27,7 +27,7 @@ A pair qualifies when missing = pattern cell count minus satisfied cells (FREE c
 
 ### Requirement: Exclusions
 
-A pair already announced as a win MUST be excluded, and in COLUMNA a candidate whose letter is dismissed MUST be excluded from the displayed list.
+A pair already announced as a win MUST be excluded, and in COLUMNA a candidate whose letter is dismissed MUST be excluded from the displayed list. A dismissed letter's column win is voided (it is not announced), so its candidates stay excluded by the letter filter alone; reopening the letter restores both its win and its candidates.
 
 #### Scenario: Announced excluded
 - GIVEN a board completed column B
@@ -38,6 +38,11 @@ A pair already announced as a win MUST be excluded, and in COLUMNA a candidate w
 - GIVEN letter G dismissed
 - WHEN predictions refresh
 - THEN no G candidates are listed
+
+#### Scenario: Dismissed completed column stays hidden
+- GIVEN letter B dismissed and a board with column B complete, so its win is voided
+- WHEN predictions refresh
+- THEN no B candidate is listed for that board
 
 ### Requirement: Ordering
 

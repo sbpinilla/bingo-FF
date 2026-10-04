@@ -40,7 +40,7 @@ Within the right pane (about 1/3 of the window), Setup MUST lead to Play on star
 
 ### Requirement: Persistence across restarts
 
-The active game's mode, called numbers (in order) and dismissed COLUMNA letters MUST persist on every change and be restored on launch. Announced wins are not stored.
+The active game's mode, called numbers (in order) and dismissed COLUMNA letters MUST persist on every change and be restored on launch. Announced wins are not stored; they are replayed from the calls with dismissed COLUMNA letters voiding their column wins.
 
 #### Scenario: Restore
 - GIVEN an active COLUMNA game with calls 5, 20 and dismissed letter B

@@ -129,13 +129,63 @@ class BoardsPaneStateTest {
     }
 
     @Test
-    fun dismissedLetter_stillHighlightsTheWinner() = runTest {
+    fun dismissedLetter_completingThatColumnDoesNotHighlight() = runTest {
         val f = fixture()
         f.session.toggleDismiss(BingoLetter.B)
 
         call(f, 3, 7, 12, 14, 15)
 
+        assertTrue(f.card(1).winningPatternIds.isEmpty())
+        assertFalse(f.card(1).isWinner)
+    }
+
+    @Test
+    fun dismissingAWonColumn_clearsTheHighlight_andReopeningRestoresIt() = runTest {
+        val f = fixture()
+        call(f, 3, 7, 12, 14, 15)
+        assertTrue(f.card(1).isWinner)
+
+        f.session.toggleDismiss(BingoLetter.B)
+        runCurrent()
+        assertFalse(f.card(1).isWinner)
+
+        f.session.toggleDismiss(BingoLetter.B)
+        runCurrent()
         assertEquals(listOf("COLUMN_B"), f.card(1).winningPatternIds)
+    }
+
+    @Test
+    fun boardWithTwoColumnWins_staysAWinnerViaTheOpenColumnOnly() = runTest {
+        val f = fixture()
+        call(f, 3, 7, 12, 14, 15, 46, 47, 48, 49, 50)
+
+        f.session.toggleDismiss(BingoLetter.B)
+        runCurrent()
+
+        assertEquals(listOf("COLUMN_G"), f.card(1).winningPatternIds)
+        assertTrue(f.card(1).isWinner)
+    }
+
+    @Test
+    fun restoredGame_withADismissedLetter_hasNoHighlightForThatColumn() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.COLUMNA, listOf(3, 7, 12, 14, 15, 47), setOf(BingoLetter.B)),
+        )
+
+        val f = fixture(repo = repo, start = null)
+
+        assertFalse(f.card(1).isWinner)
+    }
+
+    @Test
+    fun restoredNonColumnaGame_ignoresDismissedLettersForTheHighlight() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.L, listOf(3, 7, 12, 14, 15, 20, 35, 50, 65), setOf(BingoLetter.B)),
+        )
+
+        val f = fixture(seed = listOf(board1), repo = repo, start = null)
+
+        assertEquals(listOf("L"), f.card(1).winningPatternIds)
     }
 
     @Test

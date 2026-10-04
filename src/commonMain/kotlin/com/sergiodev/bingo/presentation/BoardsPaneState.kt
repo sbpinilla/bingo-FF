@@ -1,7 +1,6 @@
 package com.sergiodev.bingo.presentation
 
 import androidx.compose.runtime.Immutable
-import com.sergiodev.bingo.domain.game.replay
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GridPosition
@@ -18,7 +17,8 @@ data class CellState(val number: Int?, val marked: Boolean)
 
 /**
  * Precomputed render state of one board card. [cells] are row-major (row 1 B..O, row 2 B..O, ...).
- * [winningPatternIds] lists every pattern of the active mode this board has completed.
+ * [winningPatternIds] lists every pattern of the active mode this board has completed, except a
+ * COLUMNA column whose letter is dismissed (closing a letter voids that column's bingo).
  * [missing] is the fewest cells still needed by any near-win candidate of this board (after the
  * dismissed-letter filter), or `null` when the board is not close to winning.
  */
@@ -44,7 +44,7 @@ class BoardsPaneState(
 ) {
     val cards: StateFlow<List<BoardCardState>> = combine(boards.observeBoards(), session.active) { list, game ->
         val called = game?.calledNumbers.orEmpty().toSet()
-        val replayed = game?.let { replay(it.mode, it.calledNumbers, list) }
+        val replayed = game?.toSession(list)
         val winnersByBoard = replayed?.winners.orEmpty().groupBy({ it.boardId }, { it.patternId })
         // Candidates arrive sorted by missing, so the first one per board is its closest.
         val missingByBoard = visiblePossibleWinners(game, replayed, list)

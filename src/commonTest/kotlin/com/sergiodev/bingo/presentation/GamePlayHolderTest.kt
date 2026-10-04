@@ -332,15 +332,69 @@ class GamePlayHolderTest {
     }
 
     @Test
-    fun dismissedLetter_doesNotStopAWinFromBeingAnnounced() = runTest {
+    fun dismissedLetter_completingThatColumnAnnouncesNothing() = runTest {
         val f = fixture()
         f.play.onLetterDismissToggled(BingoLetter.B)
         runCurrent()
 
         listOf("3", "7", "12", "14", "15").forEach { submit(f, it) }
 
-        assertEquals("COLUMN_B", f.play.state.value.winners.single().patternId)
+        assertTrue(f.play.state.value.winners.isEmpty())
         assertEquals(setOf(BingoLetter.B), f.play.state.value.dismissedLetters)
+    }
+
+    @Test
+    fun dismissingAnAnnouncedColumn_removesItsAnnouncement_andReopeningRestoresIt() = runTest {
+        val f = fixture()
+        listOf("3", "7", "12", "14", "15").forEach { submit(f, it) }
+        val announced = f.play.state.value.winners
+        assertEquals("COLUMN_B", announced.single().patternId)
+
+        f.play.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+        assertTrue(f.play.state.value.winners.isEmpty())
+
+        f.play.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+        assertEquals(announced, f.play.state.value.winners)
+    }
+
+    @Test
+    fun dismissingOneColumn_keepsTheOtherAnnouncementsInTheirOrder() = runTest {
+        val f = fixture(boards = listOf(board1, board2))
+        // board2 B, then board1 G, then board1 B.
+        listOf("1", "2", "4", "5", "6", "46", "47", "48", "49", "50", "3", "7", "12", "14", "15").forEach { submit(f, it) }
+        assertEquals(
+            listOf(2L to "COLUMN_B", 1L to "COLUMN_G", 1L to "COLUMN_B"),
+            f.play.state.value.winners.map { it.boardId to it.patternId },
+        )
+
+        f.play.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+
+        assertEquals(listOf(1L to "COLUMN_G"), f.play.state.value.winners.map { it.boardId to it.patternId })
+    }
+
+    @Test
+    fun restart_withADismissedLetter_replaysWithoutThatColumnWin() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.COLUMNA, listOf(3, 7, 12, 14, 15, 46, 47, 48, 49, 50), setOf(BingoLetter.B)),
+        )
+
+        val f = fixture(repo = repo, mode = null)
+
+        assertEquals(listOf("COLUMN_G"), f.play.state.value.winners.map { it.patternId })
+    }
+
+    @Test
+    fun restoredNonColumnaGame_ignoresDismissedLettersForWins() = runTest {
+        val repo = InMemoryActiveGameRepository(
+            ActiveGame(GameMode.L, listOf(3, 7, 12, 14, 15, 20, 35, 50, 65), setOf(BingoLetter.B)),
+        )
+
+        val f = fixture(repo = repo, mode = null)
+
+        assertEquals(listOf("L"), f.play.state.value.winners.map { it.patternId })
     }
 
     @Test
