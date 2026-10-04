@@ -57,13 +57,13 @@ Chain strategy: size-exception
 
 ## Unit 3: board-management
 
-- [ ] 3.1 SPIKE (Room KMP, early risk): add Room 2.8.5 + KSP + `BundledSQLiteDriver`; RED `DT/data/local/RoomSpikeTest.kt` (`room_opens_and_roundtrips_on_desktop`); check native lib in `./gradlew packageDistributionForCurrentOS` image. If it fails: switch boards to `JsonFileStore` fallback per proposal, record in design Open Questions.
-- [ ] 3.2 RED: `DT/data/local/RoomBoardRepositoryTest.kt` (`addBoard_duplicate_identifier_fails`, `ids_ascending_after_restart`, `delete_removes`, `import_skips_dups`).
-- [ ] 3.3 GREEN: `D/data/local/{BingoDatabase,BoardDao,BoardEntity,RoomBoardRepository}.kt`, `D/data/file/AppDirs.kt`; schema export to `schemas/`.
-- [ ] 3.4 RED: `CT/presentation/CreateBoardTest.kt` (`computeFieldErrors` out_of_range, duplicate, blank-on-submit, BlankIdentifier, DuplicateIdentifier) and `BoardListTest.kt` (delete confirm/cancel), using `FakeBoardRepository`.
-- [ ] 3.5 GREEN: `C/presentation/{BoardsState,CreateBoardHolder}.kt`; `D/di/AppContainer.kt`.
-- [ ] 3.6 UI: `D/ui/{BoardsPane,CreateBoardDialog,DeleteConfirmDialog}.kt` with adaptive grid and 5x5 cards; wire into `AppWindow.kt`.
-- [ ] 3.7 Commit: `feat(boards): add board create, delete and Room persistence`
+- [x] 3.1 SPIKE (Room KMP, early risk): add Room 2.8.5 + KSP + `BundledSQLiteDriver`; RED `DT/data/local/RoomSpikeTest.kt` (`room_opens_and_roundtrips_on_desktop`); check native lib in `./gradlew packageDistributionForCurrentOS` image. If it fails: switch boards to `JsonFileStore` fallback per proposal, record in design Open Questions.
+- [x] 3.2 RED: `DT/data/local/RoomBoardRepositoryTest.kt` (`addBoard_duplicate_identifier_fails`, `ids_ascending_after_restart`, `delete_removes`, `import_skips_dups`).
+- [x] 3.3 GREEN: `D/data/local/{BingoDatabase,BoardDao,BoardEntity,RoomBoardRepository}.kt`, `D/data/file/AppDirs.kt`; schema export to `schemas/`.
+- [x] 3.4 RED: `CT/presentation/CreateBoardTest.kt` (`computeFieldErrors` out_of_range, duplicate, blank-on-submit, BlankIdentifier, DuplicateIdentifier) and `BoardListTest.kt` (delete confirm/cancel), using `FakeBoardRepository`.
+- [x] 3.5 GREEN: `C/presentation/{BoardsState,CreateBoardHolder}.kt`; `D/di/AppContainer.kt`.
+- [x] 3.6 UI: `D/ui/{BoardsPane,CreateBoardDialog,DeleteConfirmDialog}.kt` with adaptive grid and 5x5 cards; wire into `AppWindow.kt`.
+- [x] 3.7 Commit: `feat(boards): add board create, delete and Room persistence`
 
 ## Unit 4: board-export-import
 

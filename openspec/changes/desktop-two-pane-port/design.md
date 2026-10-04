@@ -126,6 +126,6 @@ No migration. Room schema v1 exported to `schemas/`; `active-game.json` carries 
 ## Open Questions
 
 - [ ] All toolchain pins marked UNVERIFIED must be confirmed at scaffold.
-- [ ] Room KMP desktop spike (BundledSQLiteDriver native lib packaging in jpackage images) may force the JSON-store fallback for boards.
+- [x] Room KMP desktop spike: PASSED (unit 3). KSP codegen, on-disk round trip and the native lib inside the packaged image all work; boards stay on Room, no JSON fallback. The native lib ships inside sqlite-bundled-jvm-2.6.2.jar (natives/<os>_<arch>) and is extracted at runtime.
 - [ ] Linux AWT FileDialog look and `FilenameFilter` support need manual smoke check.
 - [ ] Whether `xdg` var empty-string handling needs a test (treated as unset).

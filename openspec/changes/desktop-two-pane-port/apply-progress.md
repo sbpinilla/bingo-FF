@@ -82,3 +82,53 @@ Test count: 1 before (SmokeTest), 47 after (46 new). `./gradlew test`: BUILD SUC
 - `ThemeRepository` uses the design signature (`val themeMode: Flow<ThemeMode>`, `set(mode)`), not Android's `observeThemeMode/setThemeMode`. `ThemeMode` lives in the same file; unit 8 reuses it.
 - `ActiveGame` (design Key Interfaces) lives in `ActiveGameRepository.kt`; `ImportResult` split into its own file.
 - Incident: an in-place `sd` call briefly modified 5 Android test imports; restored with `git checkout` on that directory (Android repo clean again, verified `git status`).
+
+## Unit 3: board-management (DONE, tasks 3.1-3.7, Strict TDD)
+
+- [x] 3.1 SPIKE Room KMP + BundledSQLiteDriver: PASSED, boards stay on Room (no JSON fallback)
+- [x] 3.2 RED: `RoomBoardRepositoryTest` (8), `AppDirsTest` (5)
+- [x] 3.3 GREEN: `BingoDatabase`, `BoardDao`, `BoardEntity`, `IntListConverter`, `RoomBoardRepository`, `AppDirs`, `DuplicateIdentifierException`; schema exported to `schemas/`
+- [x] 3.4 RED: `CreateBoardTest` (16), `BoardListTest` (6), `FakeBoardRepository`
+- [x] 3.5 GREEN: `BoardsState` (+`BoardsUiState`), `CreateBoardHolder` (+`CreateBoardState`, `CreateBoardErrorReason`, `computeFieldErrors`), `AppContainer`
+- [x] 3.6 UI: `BoardsPane` (Adaptive(220dp) grid, 5x5 cards, empty state), `CreateBoardDialog`, `DeleteConfirmDialog`, wired in `AppWindow`/`Main`
+- [x] 3.7 Commit `feat(boards): add board create, delete and Room persistence`
+
+### Spike outcome (3.1): Room
+
+| Check | Evidence |
+|---|---|
+| KSP codegen on desktop target | `add("kspDesktop", room-compiler)`; `BingoDatabase_Impl` generated; schema `schemas/com.sergiodev.bingo.data.local.BingoDatabase/1.json` exported |
+| Real DB file round trip | `RoomSpikeTest.room_opens_and_roundtrips_on_desktop` on a temp-dir file, closed and reopened: 1/1 passed (RED first: `Unresolved reference 'sqlite'`) |
+| Native lib in packaged app | `./gradlew createDistributable` OK; `BingoFF.app/Contents/app/sqlite-bundled-jvm-2.6.2-*.jar` contains `natives/{osx_arm64,osx_x64,linux_arm64,linux_x64,windows_x64}/libsqliteJni.*`; headless check (`BundledSQLiteDriver().open(":memory:")` on the exact packaged classpath) printed `NATIVE_LOAD_OK` |
+| Real app run | `./gradlew run` for 40s: window process started and created `bingoff.db` (+wal/shm) under `~/Library/Application Support/BingoFF` (cleaned up afterwards); no exception in the log |
+
+### TDD Cycle Evidence (unit 3)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 3.1 | `data/local/RoomSpikeTest.kt` | Integration (real SQLite file) | 47/47 | Written; `compileTestKotlinDesktop` failed: Unresolved reference 'sqlite' | 1/1 passed | Single: one end-to-end round trip (reopen proves persistence) | None needed |
+| 3.2/3.3 | `data/local/RoomBoardRepositoryTest.kt` | Integration (real SQLite file) | 48/48 | Written; compile failed: Unresolved reference 'AppDirs' / 'DuplicateIdentifierException' | 8/8 passed | add ok vs duplicate, restart ordering with a deleted id, delete known vs unknown, import dedup (existing id, existing identifier, in-batch id, in-batch identifier) and id preservation, DAO throws `androidx.sqlite.SQLiteException` (backstop type) | None needed |
+| 3.3 | `data/file/AppDirsTest.kt` | Unit | 48/48 | Written; compile failed: Unresolved reference 'AppDirs' | 5/5 passed | mac, windows, linux xdg, linux unset and empty xdg, db file | None needed |
+| 3.4/3.5 | `presentation/CreateBoardTest.kt` | Unit | 61/61 | Written; compile failed: Unresolved reference 'CreateBoardHolder' | 16/16 passed | 6 pure `computeFieldErrors` cases, valid/blank/duplicate/out-of-range/blank-field submits, edit-after-failed-submit flag rules, error clearing | Renamed a misleading test (letter ranges are disjoint, so duplicates sit in one column) |
+| 3.4/3.5 | `presentation/BoardListTest.kt` | Unit | 61/61 | Written; compile failed: Unresolved reference 'BoardsState' | 6/6 passed | initial, flow follow, request, cancel, confirm, confirm without pending | None needed |
+| 3.6 | n/a | UI (Compose) | n/a | Triangulation skipped: pure rendering, no logic; logic lives in tested holders | compiles; manual run | n/a | n/a |
+
+Test count: 47 before, 83 after (36 new: 1 spike + 8 repository + 5 AppDirs + 16 create + 6 list). `./gradlew test`: BUILD SUCCESSFUL.
+
+### Work Unit Evidence (unit 3)
+
+| Evidence | Value |
+|---|---|
+| Focused test command | `./gradlew test` (JAVA_HOME 17): BUILD SUCCESSFUL; tests=83 skipped=0 failures=0 |
+| Runtime harness | `./gradlew run` 40s: app started, Room DB file created, no exception; `createDistributable` image holds the native lib and a headless load on its classpath succeeded. Interactive create/delete/restart through the window not exercised (no GUI driver). |
+| Rollback boundary | `data/local`, `data/file/AppDirs`, `presentation/{BoardsState,CreateBoardHolder}`, `di/`, `ui/{BoardsPane,CreateBoardDialog,DeleteConfirmDialog}`, `schemas/`, the Room/KSP block in `build.gradle.kts` (revert the unit 3 commit) |
+
+### Deviations / notes (unit 3)
+
+- Duplicate identifier: transactional `BoardDao.insertIfAbsent` returns null, repository maps to `Result.failure(DuplicateIdentifierException)`; `androidx.sqlite.SQLiteException` caught as backstop. New `DuplicateIdentifierException` in `domain/repository` (commonMain), so holders can stay platform free. The `BoardRepository` interface is unchanged.
+- DAO also has `@Transaction importNew` (check-and-insert in one transaction) instead of Android's prefetch outside a transaction; behaviour identical, atomic.
+- No `@ConstructedBy`/expect object: the JVM-only target uses Room's reflective `BingoDatabase_Impl` lookup, verified by the tests.
+- `computeFieldErrors` is `internal` in commonMain; the Android "duplicate across columns" scenario cannot occur literally because letter ranges are disjoint (duplicates are same-column); tests cover the same-column case.
+- UI strings are hard-coded Spanish (app default locale) pending unit 9. Delete action is a text button (no material-icons dependency).
+- Risk: jlinked runtime in the package lists modules `java.base java.datatransfer java.xml java.prefs java.desktop java.logging jdk.crypto.ec`; the SQLite JNI only needs `java.base`, but a packaged-launcher GUI run was not done in this unit (verify in unit 10).
+- The unit 3 tasks 3.2 and 3.4 each list scenario names; the five spec scenarios of `import_skips_dups` were split across two tests.
