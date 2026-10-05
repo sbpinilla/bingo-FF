@@ -9,6 +9,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.sergiodev.bingo.di.AppContainer
 import com.sergiodev.bingo.ui.AppWindow
 import com.sergiodev.bingo.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Dimension
 
@@ -32,6 +33,7 @@ private fun app() = application {
             exitApplication()
         },
         title = stringResource(Res.string.app_name),
+        icon = painterResource(Res.drawable.app_icon),
         state = state,
     ) {
         window.minimumSize = Dimension(MIN_WIDTH_PX, MIN_HEIGHT_PX)

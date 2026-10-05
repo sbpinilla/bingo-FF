@@ -64,6 +64,10 @@ compose.desktop {
             description = "BingoFF desktop"
             // suggestRuntimeModules asks for java.instrument and jdk.unsupported; java.sql is required by Room/sqlite.
             modules("java.instrument", "java.sql", "jdk.unsupported")
+
+            macOS { iconFile.set(project.file("packaging/icons/icon.icns")) }
+            windows { iconFile.set(project.file("packaging/icons/icon.ico")) }
+            linux { iconFile.set(project.file("packaging/icons/icon.png")) }
         }
     }
 }
